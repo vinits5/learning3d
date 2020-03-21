@@ -17,10 +17,10 @@ if BASE_DIR[-8:] == 'examples':
 	sys.path.append(os.path.join(BASE_DIR, os.pardir))
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
 	
-from models.feature_models import PointNet
-from models.registration_models import PointNetLK
-from models.loss_functions import frobeniusNormLoss, rmseOnFeatures
-from data_utils.dataloaders import RegistrationData, ModelNet40Data
+from models import PointNet
+from models import PointNetLK
+from models import frobeniusNormLoss, rmseOnFeatures
+from data_utils import RegistrationData, ModelNet40Data
 
 def _init_(args):
 	if not os.path.exists('checkpoints'):

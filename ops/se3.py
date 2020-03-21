@@ -1,7 +1,7 @@
 """ 3-d rigid body transfomation group and corresponding Lie algebra. """
 import torch
-from ops.sinc import sinc1, sinc2, sinc3
-from ops import so3
+from .sinc import sinc1, sinc2, sinc3
+from . import so3
 
 def twist_prod(x, y):
     x_ = x.view(-1, 6)

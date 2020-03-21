@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models.feature_models import Pooling
+from .feature_models import Pooling
 
 class Classifier(nn.Module):
 	def __init__(self, feature_model, num_classes=40):

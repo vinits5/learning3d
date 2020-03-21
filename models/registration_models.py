@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models.feature_models import DGCNN, PointNet, Pooling
+from .feature_models import DGCNN, PointNet, Pooling
 from ops import transform_functions as transform
 from ops import data_utils
 from ops import se3, so3, invmat
-from utils import transformer, svd
+from utils import Transformer, SVDHead, Identity
 
 class DCP(nn.Module):
 	def __init__(self, feature_model=PointNet(), cycle=False, pointer_='transformer', head='svd'):
@@ -14,16 +14,16 @@ class DCP(nn.Module):
 		self.emb_nn = feature_model
 
 		if pointer_ == 'identity':
-			self.pointer = transformer.Identity()
+			self.pointer = Identity()
 		elif pointer_ == 'transformer':
-			self.pointer = transformer.Transformer(self.emb_nn.emb_dims, n_blocks=1, dropout=0.0, ff_dims=1024, n_heads=4)
+			self.pointer = Transformer(self.emb_nn.emb_dims, n_blocks=1, dropout=0.0, ff_dims=1024, n_heads=4)
 		else:
 			raise Exception("Not implemented")
 
 		if head == 'mlp':
 			self.head = MLPHead(self.emb_nn.emb_dims)
 		elif head == 'svd':
-			self.head = svd.SVDHead(self.emb_nn.emb_dims)
+			self.head = SVDHead(self.emb_nn.emb_dims)
 		else:
 			raise Exception('Not implemented')
 

@@ -1,7 +1,7 @@
 """ 3-d rotation group and corresponding Lie algebra """
 import torch
-from ops import sinc
-from ops.sinc import sinc1, sinc2, sinc3
+from . import sinc
+from .sinc import sinc1, sinc2, sinc3
 
 
 def cross_prod(x, y):

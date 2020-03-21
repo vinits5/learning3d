@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from ops import quaternion  # works with (w, x, y, z) quaternions
+from . import quaternion  # works with (w, x, y, z) quaternions
 
 def create_pose_7d(vector: torch.Tensor):
     # Normalize the quaternion.
