@@ -4,4 +4,5 @@ data_utils/__pycache__
 models/__pycache__
 ops/__pycache__
 utils/__pycache__
-ops/losses/chamfer_distance/__pycache__
+losses/cuda/chamfer_distance/__pycache__
+losses/__pycache__

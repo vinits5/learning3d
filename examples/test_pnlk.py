@@ -18,9 +18,8 @@ if BASE_DIR[-8:] == 'examples':
 	sys.path.append(os.path.join(BASE_DIR, os.pardir))
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
 
-from models import PointNet
-from models import PointNetLK
-from models import frobeniusNormLoss, rmseOnFeatures
+from models import PointNet, PointNetLK
+from losses import FrobeniusNormLoss, RMSEFeaturesLoss
 from data_utils import RegistrationData, ModelNet40Data
 
 def display_open3d(template, source, transformed_source):
@@ -50,7 +49,7 @@ def test_one_epoch(device, model, test_loader):
 		output = model(template, source)
 
 		display_open3d(template.detach().cpu().numpy()[0], source.detach().cpu().numpy()[0], output['transformed_source'].detach().cpu().numpy()[0])
-		loss_val = frobeniusNormLoss(output['est_T'], igt) + rmseOnFeatures(output['r'])
+		loss_val = FrobeniusNormLoss()(output['est_T'], igt) + RMSEFeaturesLoss()(output['r'])
 
 		test_loss += loss_val.item()
 		count += 1

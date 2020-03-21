@@ -1,7 +1,10 @@
-from .basic_models import Classifier, Segmentation
-from .feature_models import DGCNN, PointNet
+from .pointnet import PointNet
+from .dgcnn import DGCNN
+from .pooling import Pooling
 
-from .loss_functions import frobeniusNormLoss, rmseOnFeatures, chamfer_distance, emd, classification_loss
-from .loss_functions import ClassificationLoss, FrobeniusNormLoss, RMSEFeaturesLoss, ChamferDistanceLoss, EMDLoss
+from .classifier import Classifier
+from .segmentation import Segmentation
 
-from .registration_models import DCP, iPCRNet, PointNetLK
+from .dcp import DCP
+from .pcrnet import iPCRNet
+from .pointnetlk import PointNetLK

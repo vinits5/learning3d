@@ -19,7 +19,7 @@ if BASE_DIR[-8:] == 'examples':
 	
 from models import PointNet
 from models import PointNetLK
-from models import frobeniusNormLoss, rmseOnFeatures
+from losses import FrobeniusNormLoss, RMSEFeaturesLoss
 from data_utils import RegistrationData, ModelNet40Data
 
 def _init_(args):
@@ -58,7 +58,7 @@ def test_one_epoch(device, model, test_loader):
 		igt = igt.to(device)
 
 		output = model(template, source)
-		loss_val = frobeniusNormLoss(output['est_T'], igt) + rmseOnFeatures(output['r'])
+		loss_val = FrobeniusNormLoss()(output['est_T'], igt) + RMSEFeaturesLoss()(output['r'])
 
 		test_loss += loss_val.item()
 		count += 1
@@ -83,7 +83,7 @@ def train_one_epoch(device, model, train_loader, optimizer):
 		igt = igt.to(device)
 
 		output = model(template, source)
-		loss_val = frobeniusNormLoss(output['est_T'], igt) + rmseOnFeatures(output['r'])
+		loss_val = FrobeniusNormLoss()(output['est_T'], igt) + RMSEFeaturesLoss()(output['r'])
 		# print(loss_val.item())
 
 		# forward + backward + optimize

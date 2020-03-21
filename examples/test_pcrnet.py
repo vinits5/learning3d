@@ -18,9 +18,8 @@ if BASE_DIR[-8:] == 'examples':
 	sys.path.append(os.path.join(BASE_DIR, os.pardir))
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
 
-from models import PointNet
-from models import iPCRNet
-from models import chamfer_distance
+from models import PointNet, iPCRNet
+from losses import ChamferDistanceLoss
 from data_utils import RegistrationData, ModelNet40Data
 
 
@@ -50,7 +49,7 @@ def test_one_epoch(device, model, test_loader):
 
 		output = model(template, source)
 		display_open3d(template.detach().cpu().numpy()[0], source.detach().cpu().numpy()[0], output['transformed_source'].detach().cpu().numpy()[0])		
-		loss_val = chamfer_distance(template, output['transformed_source'])
+		loss_val = ChamferDistanceLoss()(template, output['transformed_source'])
 
 		test_loss += loss_val.item()
 		count += 1
