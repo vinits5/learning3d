@@ -35,11 +35,11 @@ class PointNet(torch.nn.Module):
 			self.bn5 = torch.nn.BatchNorm1d(self.emb_dims)
 
 		if self.use_bn:
-			layers = [self.conv1, self.relu, self.bn1,
-					  self.conv2, self.relu, self.bn2,
-					  self.conv3, self.relu, self.bn3,
-					  self.conv4, self.relu, self.bn4,
-					  self.conv5, self.relu, self.bn5]
+			layers = [self.conv1, self.bn1, self.relu,
+					  self.conv2, self.bn2, self.relu,
+					  self.conv3, self.bn3, self.relu,
+					  self.conv4, self.bn4, self.relu,
+					  self.conv5, self.bn5, self.relu]
 		else:
 			layers = [self.conv1, self.relu,
 					  self.conv2, self.relu, 
