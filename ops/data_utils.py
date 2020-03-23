@@ -1,3 +1,5 @@
+# author: Vinit Sarode (vinitsarode5@gmail.com) 03/23/2020
+
 import torch
 
 def mean_shift(template, source, p0_zero_mean, p1_zero_mean):

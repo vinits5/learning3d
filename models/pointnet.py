@@ -1,8 +1,9 @@
+# author: Vinit Sarode (vinitsarode5@gmail.com) 03/23/2020
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .pooling import Pooling
-
 
 class PointNet(torch.nn.Module):
 	def __init__(self, emb_dims=1024, input_shape="bnc", use_bn=False, global_feat=True):

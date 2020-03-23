@@ -1,10 +1,14 @@
+# We are thankful to the authors of DCP to open source their work. 
+# Deep Closest Point, Yeu Wang, Justin Solomon. (ICCV'19)
+# https://arxiv.org/abs/1905.03304
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .dgcnn import DGCNN
 from .pointnet import PointNet
-from ops import transform_functions as transform
-from utils import Transformer, SVDHead, Identity
+from .. ops import transform_functions as transform
+from .. utils import Transformer, SVDHead, Identity
 
 
 class DCP(nn.Module):
