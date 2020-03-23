@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .pointnet import PointNet
 from .pooling import Pooling
-from ops import data_utils
-from ops import se3, so3, invmat
+from .. ops import data_utils
+from .. ops import se3, so3, invmat
 
 
 class PointNetLK(nn.Module):

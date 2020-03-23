@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .pointnet import PointNet
 from .pooling import Pooling
-from ops import transform_functions as transform
+from .. ops import transform_functions as transform
 
 
 class iPCRNet(nn.Module):

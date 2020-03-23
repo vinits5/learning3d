@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .dgcnn import DGCNN
 from .pointnet import PointNet
-from ops import transform_functions as transform
-from utils import Transformer, SVDHead, Identity
+from .. ops import transform_functions as transform
+from .. utils import Transformer, SVDHead, Identity
 
 
 class DCP(nn.Module):
