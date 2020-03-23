@@ -1,7 +1,3 @@
-# # We are thankful to the authors of DGCNN to open source their work. 
-# Dynamic Graph CNN for Learning on Point Clouds, Yeu Wang, et. al.
-# https://arxiv.org/pdf/1801.07829.pdf
-
 import torch
 import torch.nn.functional as F
 

@@ -1,5 +1,3 @@
-# author: Vinit Sarode (vinitsarode5@gmail.com) 03/23/2020
-
 import open3d as o3d
 import argparse
 import os

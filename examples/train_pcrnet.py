@@ -1,5 +1,3 @@
-# author: Vinit Sarode (vinitsarode5@gmail.com) 03/23/2020
-
 import argparse
 import os
 import sys

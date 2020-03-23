@@ -10,7 +10,7 @@ import subprocess
 import shlex
 import json
 import glob
-from .. ops import transform_functions, se3
+from ops import transform_functions, se3
 
 def download_modelnet40():
 	BASE_DIR = os.path.dirname(os.path.abspath(__file__))

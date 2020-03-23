@@ -1,8 +1,7 @@
-# author: Vinit Sarode (vinitsarode5@gmail.com) 03/23/2020
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 
 class Segmentation(nn.Module):
 	def __init__(self, feature_model, num_classes=40):

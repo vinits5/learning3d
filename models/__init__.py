@@ -8,4 +8,3 @@ from .segmentation import Segmentation
 from .dcp import DCP
 from .pcrnet import iPCRNet
 from .pointnetlk import PointNetLK
-from .pcn import PCN

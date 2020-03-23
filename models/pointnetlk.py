@@ -1,12 +1,11 @@
-# author: Vinit Sarode (vinitsarode5@gmail.com) 03/23/2020
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .pointnet import PointNet
 from .pooling import Pooling
-from .. ops import data_utils
-from .. ops import se3, so3, invmat
+from ops import data_utils
+from ops import se3, so3, invmat
+
 
 class PointNetLK(nn.Module):
 	def __init__(self, feature_model=PointNet(), delta=1.0e-2, learn_delta=False, xtol=1.0e-7, p0_zero_mean=True, p1_zero_mean=True, pooling='max'):

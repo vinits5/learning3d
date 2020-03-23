@@ -1,11 +1,10 @@
-# author: Vinit Sarode (vinitsarode5@gmail.com) 03/23/2020
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .pointnet import PointNet
 from .pooling import Pooling
-from .. ops import transform_functions as transform
+from ops import transform_functions as transform
+
 
 class iPCRNet(nn.Module):
 	def __init__(self, feature_model=PointNet(), droput=0.0, pooling='max'):
