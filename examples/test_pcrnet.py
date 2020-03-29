@@ -18,9 +18,9 @@ if BASE_DIR[-8:] == 'examples':
 	sys.path.append(os.path.join(BASE_DIR, os.pardir))
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
 
-from models import PointNet, iPCRNet
-from losses import ChamferDistanceLoss
-from data_utils import RegistrationData, ModelNet40Data
+from learning3d.models import PointNet, iPCRNet
+from learning3d.losses import ChamferDistanceLoss
+from learning3d.data_utils import RegistrationData, ModelNet40Data
 
 
 def display_open3d(template, source, transformed_source):

@@ -18,9 +18,9 @@ if BASE_DIR[-8:] == 'examples':
 	sys.path.append(os.path.join(BASE_DIR, os.pardir))
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
 
-from models import PointNet, PointNetLK
-from losses import FrobeniusNormLoss, RMSEFeaturesLoss
-from data_utils import RegistrationData, ModelNet40Data
+from learning3d.models import PointNet, PointNetLK
+from learning3d.losses import FrobeniusNormLoss, RMSEFeaturesLoss
+from learning3d.data_utils import RegistrationData, ModelNet40Data
 
 def display_open3d(template, source, transformed_source):
 	template_ = o3d.geometry.PointCloud()
