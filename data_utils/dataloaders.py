@@ -43,55 +43,55 @@ def load_data(train):
 	return all_data, all_label
 
 def deg_to_rad(deg):
-    return np.pi / 180 * deg
+	return np.pi / 180 * deg
 
 def create_random_transform(dtype, max_rotation_deg, max_translation):
-    max_rotation = deg_to_rad(max_rotation_deg)
-    rot = np.random.uniform(-max_rotation, max_rotation, [1, 3])
-    trans = np.random.uniform(-max_translation, max_translation, [1, 3])
-    quat = transform_functions.euler_to_quaternion(rot, "xyz")
+	max_rotation = deg_to_rad(max_rotation_deg)
+	rot = np.random.uniform(-max_rotation, max_rotation, [1, 3])
+	trans = np.random.uniform(-max_translation, max_translation, [1, 3])
+	quat = transform_functions.euler_to_quaternion(rot, "xyz")
 
-    vec = np.concatenate([quat, trans], axis=1)
-    vec = torch.tensor(vec, dtype=dtype)
-    return vec
+	vec = np.concatenate([quat, trans], axis=1)
+	vec = torch.tensor(vec, dtype=dtype)
+	return vec
 
 
 class RandomTransformSE3:
-    """ rigid motion """
-    def __init__(self, mag=1, mag_randomly=False):
-        self.mag = mag
-        self.randomly = mag_randomly
+	""" rigid motion """
+	def __init__(self, mag=1, mag_randomly=False):
+		self.mag = mag
+		self.randomly = mag_randomly
 
-        self.gt = None
-        self.igt = None
+		self.gt = None
+		self.igt = None
 
-    def generate_transform(self):
-        # return: a twist-vector
-        amp = self.mag
-        if self.randomly:
-            amp = torch.rand(1, 1) * self.mag
-        x = torch.randn(1, 6)
-        x = x / x.norm(p=2, dim=1, keepdim=True) * amp
+	def generate_transform(self):
+		# return: a twist-vector
+		amp = self.mag
+		if self.randomly:
+			amp = torch.rand(1, 1) * self.mag
+		x = torch.randn(1, 6)
+		x = x / x.norm(p=2, dim=1, keepdim=True) * amp
 
-        return x # [1, 6]
+		return x # [1, 6]
 
-    def apply_transform(self, p0, x):
-        # p0: [N, 3]
-        # x: [1, 6]
-        g = se3.exp(x).to(p0)   # [1, 4, 4]
-        gt = se3.exp(-x).to(p0) # [1, 4, 4]
+	def apply_transform(self, p0, x):
+		# p0: [N, 3]
+		# x: [1, 6]
+		g = se3.exp(x).to(p0)   # [1, 4, 4]
+		gt = se3.exp(-x).to(p0) # [1, 4, 4]
 
-        p1 = se3.transform(g, p0)
-        self.gt = gt.squeeze(0) #  gt: p1 -> p0
-        self.igt = g.squeeze(0) # igt: p0 -> p1
-        return p1
+		p1 = se3.transform(g, p0)
+		self.gt = gt.squeeze(0) #  gt: p1 -> p0
+		self.igt = g.squeeze(0) # igt: p0 -> p1
+		return p1
 
-    def transform(self, tensor):
-        x = self.generate_transform()
-        return self.apply_transform(tensor, x)
+	def transform(self, tensor):
+		x = self.generate_transform()
+		return self.apply_transform(tensor, x)
 
-    def __call__(self, tensor):
-        return self.transform(tensor)
+	def __call__(self, tensor):
+		return self.transform(tensor)
 
 
 
@@ -238,6 +238,80 @@ class FlowData(Dataset):
 
 	def __getitem__(self, index):
 		return self.pc1[index], self.pc2[index], self.flow[index]
+
+
+class SceneflowDataset(Dataset):
+	def __init__(self, npoints=1024, root='', partition='train'):
+		if root == '':
+			BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+			DATA_DIR = os.path.join(BASE_DIR, os.pardir, 'data')
+			root = os.path.join(DATA_DIR, 'data_processed_maxcut_35_20k_2k_8192')
+			if not os.path.exists(root): 
+				print("To download dataset, click here: https://drive.google.com/file/d/1CMaxdt-Tg1Wct8v8eGNwuT7qRSIyJPY-/view")
+				exit()
+			else:
+				print("SceneflowDataset Found Successfully!")
+
+		self.npoints = npoints
+		self.partition = partition
+		self.root = root
+		if self.partition=='train':
+			self.datapath = glob.glob(os.path.join(self.root, 'TRAIN*.npz'))
+		else:
+			self.datapath = glob.glob(os.path.join(self.root, 'TEST*.npz'))
+		self.cache = {}
+		self.cache_size = 30000
+
+		###### deal with one bad datapoint with nan value
+		self.datapath = [d for d in self.datapath if 'TRAIN_C_0140_left_0006-0' not in d]
+		######
+		print(self.partition, ': ',len(self.datapath))
+
+	def __getitem__(self, index):
+		if index in self.cache:
+			pos1, pos2, color1, color2, flow, mask1 = self.cache[index]
+		else:
+			fn = self.datapath[index]
+			with open(fn, 'rb') as fp:
+				data = np.load(fp)
+				pos1 = data['points1'].astype('float32')
+				pos2 = data['points2'].astype('float32')
+				color1 = data['color1'].astype('float32')
+				color2 = data['color2'].astype('float32')
+				flow = data['flow'].astype('float32')
+				mask1 = data['valid_mask1']
+
+			if len(self.cache) < self.cache_size:
+				self.cache[index] = (pos1, pos2, color1, color2, flow, mask1)
+
+		if self.partition == 'train':
+			n1 = pos1.shape[0]
+			sample_idx1 = np.random.choice(n1, self.npoints, replace=False)
+			n2 = pos2.shape[0]
+			sample_idx2 = np.random.choice(n2, self.npoints, replace=False)
+
+			pos1 = pos1[sample_idx1, :]
+			pos2 = pos2[sample_idx2, :]
+			color1 = color1[sample_idx1, :]
+			color2 = color2[sample_idx2, :]
+			flow = flow[sample_idx1, :]
+			mask1 = mask1[sample_idx1]
+		else:
+			pos1 = pos1[:self.npoints, :]
+			pos2 = pos2[:self.npoints, :]
+			color1 = color1[:self.npoints, :]
+			color2 = color2[:self.npoints, :]
+			flow = flow[:self.npoints, :]
+			mask1 = mask1[:self.npoints]
+
+		pos1_center = np.mean(pos1, 0)
+		pos1 -= pos1_center
+		pos2 -= pos1_center
+
+		return pos1, pos2, color1, color2, flow, mask1
+
+	def __len__(self):
+		return len(self.datapath)
 
 
 if __name__ == '__main__':

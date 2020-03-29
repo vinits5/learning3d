@@ -9,3 +9,5 @@ from .dcp import DCP
 from .pcrnet import iPCRNet
 from .pointnetlk import PointNetLK
 from .pcn import PCN
+
+from .flownet3d import FlowNet3D
