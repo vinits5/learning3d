@@ -21,6 +21,7 @@ if BASE_DIR[-8:] == 'examples':
 	
 from learning3d.models import PCN
 from learning3d.losses import ChamferDistanceLoss
+from learning3d.data_utils import ClassificationData, ModelNet40Data
 
 def _init_(args):
 	if not os.path.exists('checkpoints'):
@@ -29,8 +30,7 @@ def _init_(args):
 		os.makedirs('checkpoints/' + args.exp_name)
 	if not os.path.exists('checkpoints/' + args.exp_name + '/' + 'models'):
 		os.makedirs('checkpoints/' + args.exp_name + '/' + 'models')
-	os.system('cp main.py checkpoints' + '/' + args.exp_name + '/' + 'main.py.backup')
-	os.system('cp model.py checkpoints' + '/' + args.exp_name + '/' + 'model.py.backup')
+	os.system('cp train_pcn.py checkpoints' + '/' + args.exp_name + '/' + 'main.py.backup')
 
 
 class IOStream:
@@ -52,15 +52,13 @@ def test_one_epoch(device, model, test_loader):
 	count = 0
 	for i, data in enumerate(tqdm(test_loader)):
 		points, _ = data
-
 		points = points.to(device)
-		target = target.to(device)
 
 		output = model(points)
 		loss_val = ChamferDistanceLoss()(points, output['coarse_output'])
 
 		test_loss += loss_val.item()
-		count += output.size(0)
+		count += 1
 
 	test_loss = float(test_loss)/count
 	return test_loss
@@ -76,9 +74,7 @@ def train_one_epoch(device, model, train_loader, optimizer):
 	count = 0
 	for i, data in enumerate(tqdm(train_loader)):
 		points, _ = data
-
 		points = points.to(device)
-		target = target.to(device)
 
 		output = model(points)
 		loss_val = ChamferDistanceLoss()(points, output['coarse_output'])
@@ -89,7 +85,7 @@ def train_one_epoch(device, model, train_loader, optimizer):
 		optimizer.step()
 
 		train_loss += loss_val.item()
-		count += output.size(0)
+		count += 1
 
 	train_loss = float(train_loss)/count
 	return train_loss
@@ -146,7 +142,7 @@ def options():
 	# settings for PCN
 	parser.add_argument('--emb_dims', default=1024, type=int,
 						metavar='K', help='dim. of the feature vector (default: 1024)')
-	parser.add_argument('--emb_dims', default=False, type=bool,
+	parser.add_argument('--detailed_output', default=False, type=bool,
 						help='Coarse + Fine Output')
 
 	# settings for on training
