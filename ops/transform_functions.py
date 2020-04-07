@@ -4,41 +4,6 @@ import torch.nn.functional as F
 import numpy as np
 from . import quaternion  # works with (w, x, y, z) quaternions
 
-def create_pose_7d(vector: torch.Tensor):
-    # Normalize the quaternion.
-    pre_normalized_quaternion = vector[:, 0:4]
-    normalized_quaternion = F.normalize(pre_normalized_quaternion, dim=1)
-
-    # B x 7 vector of 4 quaternions and 3 translation parameters
-    translation = vector[:, 4:]
-    vector = torch.cat([normalized_quaternion, translation], dim=1)
-    return vector.view([-1, 7])
-
-def get_quaternion(pose_7d: torch.Tensor):
-    return pose_7d[:, 0:4]
-
-def get_translation(pose_7d: torch.Tensor):
-        return pose_7d[:, 4:]
-
-def quaternion_rotate(point_cloud: torch.Tensor, pose_7d: torch.Tensor):
-    ndim = point_cloud.dim()
-    if ndim == 2:
-        N, _ = point_cloud.shape
-        assert pose_7d.shape[0] == 1
-        # repeat transformation vector for each point in shape
-        quat = get_quaternion(pose_7d).expand([N, -1])
-        rotated_point_cloud = quaternion.qrot(quat, point_cloud)
-
-    elif ndim == 3:
-        B, N, _ = point_cloud.shape
-        quat = get_quaternion(pose_7d).unsqueeze(1).expand([-1, N, -1]).contiguous()
-        rotated_point_cloud = quaternion.qrot(quat, point_cloud)
-
-    return rotated_point_cloud
-
-def quaternion_transform(point_cloud: torch.Tensor, pose_7d: torch.Tensor):
-    transformed_point_cloud = quaternion_rotate(point_cloud, pose_7d) + get_translation(pose_7d).view(-1, 1, 3).repeat(1, point_cloud.shape[1], 1)      # Ps' = R*Ps + t
-    return transformed_point_cloud
 
 def quat2mat(quat):
     x, y, z, w = quat[:, 0], quat[:, 1], quat[:, 2], quat[:, 3]
@@ -60,12 +25,6 @@ def transform_point_cloud(point_cloud: torch.Tensor, rotation: torch.Tensor, tra
     else:
         rot_mat = rotation
     return torch.matmul(rot_mat, point_cloud) + translation.unsqueeze(2)
-
-def convert2transformation(rotation_matrix: torch.Tensor, translation_vector: torch.Tensor):
-    one_ = torch.tensor([[[0.0, 0.0, 0.0, 1.0]]]).repeat(rotation_matrix.shape[0], 1, 1).to(rotation_matrix)    # (Bx1x4)
-    transformation_matrix = torch.cat([rotation_matrix, translation_vector[:,0,:].unsqueeze(-1)], dim=2)                        # (Bx3x4)
-    transformation_matrix = torch.cat([transformation_matrix, one_], dim=1)                                     # (Bx4x4)
-    return transformation_matrix
 
 def qmul(q, r):
     """
@@ -137,3 +96,162 @@ def euler_to_quaternion(e, order):
         result *= -1
 
     return result.reshape(original_shape)
+
+
+class PNLKTransform:
+    """ rigid motion """
+    def __init__(self, mag=1, mag_randomly=False):
+        self.mag = mag
+        self.randomly = mag_randomly
+
+        self.gt = None
+        self.igt = None
+
+    def generate_transform(self):
+        # return: a twist-vector
+        amp = self.mag
+        if self.randomly:
+            amp = torch.rand(1, 1) * self.mag
+        x = torch.randn(1, 6)
+        x = x / x.norm(p=2, dim=1, keepdim=True) * amp
+
+        return x # [1, 6]
+
+    def apply_transform(self, p0, x):
+        # p0: [N, 3]
+        # x: [1, 6]
+        g = se3.exp(x).to(p0)   # [1, 4, 4]
+        gt = se3.exp(-x).to(p0) # [1, 4, 4]
+
+        p1 = se3.transform(g, p0)
+        self.gt = gt.squeeze(0) #  gt: p1 -> p0
+        self.igt = g.squeeze(0) # igt: p0 -> p1
+        return p1
+
+    def transform(self, tensor):
+        x = self.generate_transform()
+        return self.apply_transform(tensor, x)
+
+    def __call__(self, tensor):
+        return self.transform(tensor)
+
+
+class PCRNetTransform:
+    def __init__(self, data_size, angle_range=45, translation_range=1):
+        self.angle_range = angle_range
+        self.translation_range = translation_range
+        self.dtype = torch.float32
+        self.transformations = [self.create_random_transform(torch.float32, self.angle_range, self.translation_range) for _ in range(data_size)]
+
+    @staticmethod
+    def deg_to_rad(deg):
+        return np.pi / 180 * deg
+
+    @staticmethod
+    def create_random_transform(dtype, max_rotation_deg, max_translation):
+        max_rotation = self.deg_to_rad(max_rotation_deg)
+        rot = np.random.uniform(-max_rotation, max_rotation, [1, 3])
+        trans = np.random.uniform(-max_translation, max_translation, [1, 3])
+        quat = euler_to_quaternion(rot, "xyz")
+
+        vec = np.concatenate([quat, trans], axis=1)
+        vec = torch.tensor(vec, dtype=dtype)
+        return vec
+
+    @staticmethod
+    def create_pose_7d(vector: torch.Tensor):
+        # Normalize the quaternion.
+        pre_normalized_quaternion = vector[:, 0:4]
+        normalized_quaternion = F.normalize(pre_normalized_quaternion, dim=1)
+
+        # B x 7 vector of 4 quaternions and 3 translation parameters
+        translation = vector[:, 4:]
+        vector = torch.cat([normalized_quaternion, translation], dim=1)
+        return vector.view([-1, 7])
+
+    @staticmethod
+    def get_quaternion(pose_7d: torch.Tensor):
+        return pose_7d[:, 0:4]
+
+    @staticmethod
+    def get_translation(pose_7d: torch.Tensor):
+            return pose_7d[:, 4:]
+
+    @staticmethod
+    def quaternion_rotate(point_cloud: torch.Tensor, pose_7d: torch.Tensor):
+        ndim = point_cloud.dim()
+        if ndim == 2:
+            N, _ = point_cloud.shape
+            assert pose_7d.shape[0] == 1
+            # repeat transformation vector for each point in shape
+            quat = self.get_quaternion(pose_7d).expand([N, -1])
+            rotated_point_cloud = quaternion.qrot(quat, point_cloud)
+
+        elif ndim == 3:
+            B, N, _ = point_cloud.shape
+            quat = self.get_quaternion(pose_7d).unsqueeze(1).expand([-1, N, -1]).contiguous()
+            rotated_point_cloud = quaternion.qrot(quat, point_cloud)
+
+        return rotated_point_cloud
+
+    @staticmethod
+    def quaternion_transform(point_cloud: torch.Tensor, pose_7d: torch.Tensor):
+        transformed_point_cloud = self.quaternion_rotate(point_cloud, pose_7d) + self.get_translation(pose_7d).view(-1, 1, 3).repeat(1, point_cloud.shape[1], 1)      # Ps' = R*Ps + t
+        return transformed_point_cloud
+
+    @staticmethod
+    def convert2transformation(rotation_matrix: torch.Tensor, translation_vector: torch.Tensor):
+        one_ = torch.tensor([[[0.0, 0.0, 0.0, 1.0]]]).repeat(rotation_matrix.shape[0], 1, 1).to(rotation_matrix)    # (Bx1x4)
+        transformation_matrix = torch.cat([rotation_matrix, translation_vector[:,0,:].unsqueeze(-1)], dim=2)                        # (Bx3x4)
+        transformation_matrix = torch.cat([transformation_matrix, one_], dim=1)                                     # (Bx4x4)
+        return transformation_matrix
+
+    def __call__(self, point_cloud, index):
+        self.igt = self.transformations[index]
+        gt = self.create_pose_7d(igt)
+        source = self.quaternion_rotate(template, gt)
+        return source
+
+
+class DCPTransform:
+    def __init__(self, angle_range=45, translation_range=1):
+        self.angle_range = angle_range*(np.pi/180)
+        self.translation_range = translation_range
+
+    def generate_transform(self):
+        self.anglex = np.random.uniform() * self.angle_range
+        self.angley = np.random.uniform() * self.angle_range
+        self.anglez = np.random.uniform() * self.angle_range
+        self.translation_ab = np.array([np.random.uniform(-self.translation_range, self.translation_range),
+                                        np.random.uniform(-self.translation_range, self.translation_range),
+                                        np.random.uniform(-self.translation_range, self.translation_range)])
+        cosx = np.cos(self.anglex)
+        cosy = np.cos(self.angley)
+        cosz = np.cos(self.anglez)
+        sinx = np.sin(self.anglex)
+        siny = np.sin(self.angley)
+        sinz = np.sin(self.anglez)
+        Rx = np.array([[1, 0, 0],
+                        [0, cosx, -sinx],
+                        [0, sinx, cosx]])
+        Ry = np.array([[cosy, 0, siny],
+                        [0, 1, 0],
+                        [-siny, 0, cosy]])
+        Rz = np.array([[cosz, -sinz, 0],
+                        [sinz, cosz, 0],
+                        [0, 0, 1]])
+        self.R_ab = Rx.dot(Ry).dot(Rz)
+        last_row = np.array([[0., 0., 0., 1.]])
+        self.igt = np.concatenate([self.R_ab, self.translation_ab.reshape(-1,1)], axis=1)
+        self.igt = np.concatenate([self.igt, last_row], axis=0)
+
+    def apply_transformation(self, template):
+        rotation_ab = Rotation.from_euler('zyx', [self.anglez, self.angley, self.anglex])
+        source = rotation_ab.apply(template.T).T + np.expand_dims(self.translation_ab, axis=1)
+        return source
+
+    def __call__(self, template):
+        self.generate_transform()
+        return self.apply_transformation(template)
+
+def transform_dcp():

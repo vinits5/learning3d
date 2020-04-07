@@ -56,45 +56,6 @@ def create_random_transform(dtype, max_rotation_deg, max_translation):
 	return vec
 
 
-class RandomTransformSE3:
-	""" rigid motion """
-	def __init__(self, mag=1, mag_randomly=False):
-		self.mag = mag
-		self.randomly = mag_randomly
-
-		self.gt = None
-		self.igt = None
-
-	def generate_transform(self):
-		# return: a twist-vector
-		amp = self.mag
-		if self.randomly:
-			amp = torch.rand(1, 1) * self.mag
-		x = torch.randn(1, 6)
-		x = x / x.norm(p=2, dim=1, keepdim=True) * amp
-
-		return x # [1, 6]
-
-	def apply_transform(self, p0, x):
-		# p0: [N, 3]
-		# x: [1, 6]
-		g = se3.exp(x).to(p0)   # [1, 4, 4]
-		gt = se3.exp(-x).to(p0) # [1, 4, 4]
-
-		p1 = se3.transform(g, p0)
-		self.gt = gt.squeeze(0) #  gt: p1 -> p0
-		self.igt = g.squeeze(0) # igt: p0 -> p1
-		return p1
-
-	def transform(self, tensor):
-		x = self.generate_transform()
-		return self.apply_transform(tensor, x)
-
-	def __call__(self, tensor):
-		return self.transform(tensor)
-
-
-
 class UnknownDataTypeError(Exception):
 	def __init__(self, *args):
 		if args: self.message = args[0]
@@ -179,9 +140,14 @@ class RegistrationData(Dataset):
 		self.set_class(data_class)
 
 		if self.algorithm == 'PCRNet' or self.algorithm == 'iPCRNet':
-			self.transforms = [create_random_transform(torch.float32, 45, 1) for _ in range(len(self.data_class))]
+			from .. ops.transform_functions import PCRNetTransform
+			self.transforms = PCRNetTransform(len(data_class), angle_range=45, translation_range=1)
 		if self.algorithm == 'PointNetLK':
-			self.transforms = RandomTransformSE3(0.8, True)
+			from .. ops.transform_functions import PNLKTransform
+			self.transforms = PNLKTransform(0.8, True)
+		if self.algorithm == 'DCP':
+			from .. ops.transform_functions import DCPTransform
+			self.transforms = DCPTransform(angle_range=45, translation_range=1)
 
 	def __len__(self):
 		return len(self.data_class)
@@ -191,12 +157,17 @@ class RegistrationData(Dataset):
 
 	def pcrnet_data_loader(self, index):
 		template, label = self.data_class[index]
-		igt = self.transforms[index]
-		gt = transform_functions.create_pose_7d(igt)
-		source = transform_functions.quaternion_rotate(template, gt)
+		source = self.transforms(template, index)
+		igt = self.transforms.igt
 		return template, source, igt
 
 	def pointnetlk_data_loader(self, index):
+		template, label = self.data_class[index]
+		source = self.transforms(template)
+		igt = self.transforms.igt
+		return template, source, igt
+
+	def dcp_data_loader(self, index):
 		template, label = self.data_class[index]
 		source = self.transforms(template)
 		igt = self.transforms.igt

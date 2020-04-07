@@ -8,7 +8,7 @@ from .. utils import Transformer, SVDHead, Identity
 
 
 class DCP(nn.Module):
-	def __init__(self, feature_model=PointNet(), cycle=False, pointer_='transformer', head='svd'):
+	def __init__(self, feature_model=DGCNN(), cycle=False, pointer_='transformer', head='svd'):
 		super(DCP, self).__init__()
 		self.cycle = cycle
 		self.emb_nn = feature_model
