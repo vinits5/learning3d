@@ -87,7 +87,7 @@ def options():
 						help='symmetric function (default: max)')
 
 	# settings for on training
-	parser.add_argument('--pretrained', default='./checkpoints/exp_classifier/models/best_model.t7', type=str,
+	parser.add_argument('--pretrained', default='learning3d/pretrained/exp_classifier/models/best_model.t7', type=str,
 						metavar='PATH', help='path to pretrained model file (default: null (no-use))')
 	parser.add_argument('--device', default='cuda:0', type=str,
 						metavar='DEVICE', help='use CUDA if available')

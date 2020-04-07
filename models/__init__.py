@@ -1,5 +1,4 @@
 from .pointnet import PointNet
-from .pointnet2 import PointNet2
 from .dgcnn import DGCNN
 from .pooling import Pooling
 

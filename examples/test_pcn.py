@@ -1,3 +1,5 @@
+# author: Vinit Sarode (vinitsarode5@gmail.com) 03/23/2020
+
 import open3d as o3d
 import argparse
 import os
@@ -17,22 +19,19 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR[-8:] == 'examples':
 	sys.path.append(os.path.join(BASE_DIR, os.pardir))
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
+	
+from learning3d.models import PCN
+from learning3d.data_utils import ModelNet40Data, ClassificationData
+from learning3d.losses import ChamferDistanceLoss
 
-from learning3d.models import PointNet, PointNetLK
-from learning3d.losses import FrobeniusNormLoss, RMSEFeaturesLoss
-from learning3d.data_utils import RegistrationData, ModelNet40Data
-
-def display_open3d(template, source, transformed_source):
-	template_ = o3d.geometry.PointCloud()
-	source_ = o3d.geometry.PointCloud()
-	transformed_source_ = o3d.geometry.PointCloud()
-	template_.points = o3d.utility.Vector3dVector(template)
-	source_.points = o3d.utility.Vector3dVector(source + np.array([0,0,0]))
-	transformed_source_.points = o3d.utility.Vector3dVector(transformed_source)
-	template_.paint_uniform_color([1, 0, 0])
-	source_.paint_uniform_color([0, 1, 0])
-	transformed_source_.paint_uniform_color([0, 0, 1])
-	o3d.visualization.draw_geometries([template_, source_, transformed_source_])
+def display_open3d(input_pc, output):
+	input_pc_ = o3d.geometry.PointCloud()
+	output_ = o3d.geometry.PointCloud()
+	input_pc_.points = o3d.utility.Vector3dVector(input_pc)
+	output_.points = o3d.utility.Vector3dVector(output + np.array([1,0,0]))
+	input_pc_.paint_uniform_color([1, 0, 0])
+	output_.paint_uniform_color([0, 1, 0])
+	o3d.visualization.draw_geometries([input_pc_, output_])
 
 def test_one_epoch(device, model, test_loader):
 	model.eval()
@@ -40,16 +39,14 @@ def test_one_epoch(device, model, test_loader):
 	pred  = 0.0
 	count = 0
 	for i, data in enumerate(tqdm(test_loader)):
-		template, source, igt = data
+		points, _ = data
 
-		template = template.to(device)
-		source = source.to(device)
-		igt = igt.to(device)
+		points = points.to(device)
 
-		output = model(template, source)
-
-		display_open3d(template.detach().cpu().numpy()[0], source.detach().cpu().numpy()[0], output['transformed_source'].detach().cpu().numpy()[0])
-		loss_val = FrobeniusNormLoss()(output['est_T'], igt) + RMSEFeaturesLoss()(output['r'])
+		output = model(points)
+		loss_val = ChamferDistanceLoss()(points, output['coarse_output'])
+		print("Loss Val: ", loss_val)
+		display_open3d(points[0].detach().cpu().numpy(), output['coarse_output'][0].detach().cpu().numpy())
 
 		test_loss += loss_val.item()
 		count += 1
@@ -58,12 +55,11 @@ def test_one_epoch(device, model, test_loader):
 	return test_loss
 
 def test(args, model, test_loader):
-	test_loss, test_accuracy = test_one_epoch(args.device, model, test_loader)
-	
+	test_loss = test_one_epoch(args.device, model, test_loader)
 
 def options():
-	parser = argparse.ArgumentParser(description='Point Cloud Registration')
-	parser.add_argument('--exp_name', type=str, default='exp_pnlk_v1', metavar='N',
+	parser = argparse.ArgumentParser(description='Point Completion Network')
+	parser.add_argument('--exp_name', type=str, default='exp_pcn', metavar='N',
 						help='Name of the experiment')
 	parser.add_argument('--dataset_path', type=str, default='ModelNet40',
 						metavar='PATH', help='path to the input dataset') # like '/path/to/ModelNet40'
@@ -75,19 +71,19 @@ def options():
 	parser.add_argument('--num_points', default=1024, type=int,
 						metavar='N', help='points in point-cloud (default: 1024)')
 
-	# settings for PointNet
+	# settings for PCN
 	parser.add_argument('--emb_dims', default=1024, type=int,
 						metavar='K', help='dim. of the feature vector (default: 1024)')
-	parser.add_argument('--symfn', default='max', choices=['max', 'avg'],
-						help='symmetric function (default: max)')
+	parser.add_argument('--detailed_output', default=False, type=bool,
+						help='Coarse + Fine Output')
 
 	# settings for on training
 	parser.add_argument('--seed', type=int, default=1234)
 	parser.add_argument('-j', '--workers', default=4, type=int,
 						metavar='N', help='number of data loading workers (default: 4)')
-	parser.add_argument('-b', '--batch_size', default=10, type=int,
+	parser.add_argument('-b', '--batch_size', default=32, type=int,
 						metavar='N', help='mini-batch size (default: 32)')
-	parser.add_argument('--pretrained', default='learning3d/pretrained/exp_pnlk/models/best_model.t7', type=str,
+	parser.add_argument('--pretrained', default='learning3d/pretrained/exp_pcn/models/best_model.t7', type=str,
 						metavar='PATH', help='path to pretrained model file (default: null (no-use))')
 	parser.add_argument('--device', default='cuda:0', type=str,
 						metavar='DEVICE', help='use CUDA if available')
@@ -97,18 +93,19 @@ def options():
 
 def main():
 	args = options()
+	args.dataset_path = os.path.join(os.getcwd(), os.pardir, os.pardir, 'ModelNet40', 'ModelNet40')
 
-	testset = RegistrationData('PointNetLK', ModelNet40Data(train=False))
-	test_loader = DataLoader(testset, batch_size=8, shuffle=False, drop_last=False, num_workers=args.workers)
+	trainset = ClassificationData(ModelNet40Data(train=True))
+	testset = ClassificationData(ModelNet40Data(train=False))
+	train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=args.workers)
+	test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
 
 	if not torch.cuda.is_available():
 		args.device = 'cpu'
 	args.device = torch.device(args.device)
 
 	# Create PointNet Model.
-	ptnet = PointNet(emb_dims=args.emb_dims, use_bn=True)
-	model = PointNetLK(feature_model=ptnet)
-	model = model.to(args.device)
+	model = PCN(emb_dims=args.emb_dims, detailed_output=args.detailed_output)
 
 	if args.pretrained:
 		assert os.path.isfile(args.pretrained)
