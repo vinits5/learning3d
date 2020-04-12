@@ -52,7 +52,6 @@ def test_one_epoch(args, net, test_loader):
 
         pc1, pc2 = pc1.permute(0,2,1), pc2.permute(0,2,1)
         pc1_ = pc1 - flow_pred
-        print("flow: {} \n predicted flow: {}".format(flow, flow_pred))
         print("Loss: ", loss_1)
         display_open3d(pc1.detach().cpu().numpy()[0], pc2.detach().cpu().numpy()[0], pc1_.detach().cpu().numpy()[0])
         total_loss += loss_1.item() * batch_size        

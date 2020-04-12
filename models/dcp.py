@@ -43,10 +43,12 @@ class DCP(nn.Module):
 			rotation_ba = rotation_ab.transpose(2, 1).contiguous()
 			translation_ba = -torch.matmul(rotation_ba, translation_ab.unsqueeze(2)).squeeze(2)
 
-		transformed_source = transform_point_cloud(src, rotation_ab, translation_ab)
+		transformed_source = transform.transform_point_cloud(source, rotation_ab, translation_ab)
 
 		result = {'est_R': rotation_ab,
 				  'est_t': translation_ab,
+				  'est_R_': rotation_ba,
+				  'est_t_': translation_ba,
 				  'est_T': transform.convert2transformation(rotation_ab, translation_ab),
 				  'r': template_features - source_features,
 				  'transformed_source': transformed_source}

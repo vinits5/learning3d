@@ -157,6 +157,7 @@ class RegistrationData(Dataset):
 
 	def __getitem__(self, index):
 		template, label = self.data_class[index]
+		self.transforms.index = index				# for fixed transformations in PCRNet.
 		source = self.transforms(template)
 		igt = self.transforms.igt
 		return template, source, igt

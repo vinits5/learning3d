@@ -19,7 +19,7 @@ if BASE_DIR[-8:] == 'examples':
 	
 from learning3d.models import PointNet
 from learning3d.models import Classifier
-from data_utils import ClassificationData, ModelNet40Data
+from learning3d.data_utils import ClassificationData, ModelNet40Data
 
 def _init_(args):
 	if not os.path.exists('checkpoints'):

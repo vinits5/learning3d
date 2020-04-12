@@ -18,7 +18,6 @@ if BASE_DIR[-8:] == 'examples':
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
 	
 from learning3d.models import DGCNN, DCP
-from learning3d.losses import ChamferDistanceLoss
 from learning3d.data_utils import RegistrationData, ModelNet40Data
 
 def _init_(args):
@@ -29,7 +28,6 @@ def _init_(args):
 	if not os.path.exists('checkpoints/' + args.exp_name + '/' + 'models'):
 		os.makedirs('checkpoints/' + args.exp_name + '/' + 'models')
 	os.system('cp train_dcp.py checkpoints' + '/' + args.exp_name + '/' + 'train.py.backup')
-
 
 class IOStream:
 	def __init__(self, path):
@@ -45,7 +43,7 @@ class IOStream:
 
 def get_transformations(igt):
 	R_ba = igt[:, 0:3, 0:3]								# Ps = R_ba * Pt
-	translation_ba = igt[:, 0:3, 3]						# Ps = Pt + t_ba
+	translation_ba = igt[:, 0:3, 3].unsqueeze(2)		# Ps = Pt + t_ba
 	R_ab = R_ba.permute(0, 2, 1)						# Pt = R_ab * Ps
 	translation_ab = -torch.bmm(R_ab, translation_ba)	# Pt = Ps + t_ab
 	return R_ab, translation_ab, R_ba, translation_ba
@@ -66,7 +64,13 @@ def test_one_epoch(device, model, test_loader):
 		igt = igt.to(device)
 
 		output = model(template, source)
-		loss_val = ChamferDistanceLoss()(template, output['transformed_source'])
+		identity = torch.eye(3).cuda().unsqueeze(0).repeat(template.shape[0], 1, 1)
+		loss_val = torch.nn.functional.mse_loss(torch.matmul(output['est_R'].transpose(2, 1), R_ab), identity) \
+			   + torch.nn.functional.mse_loss(output['est_t'], translation_ab[:,:,0])
+
+		cycle_loss = torch.nn.functional.mse_loss(torch.matmul(output['est_R_'].transpose(2, 1), R_ba), identity) \
+			   + torch.nn.functional.mse_loss(output['est_t_'], translation_ba[:,:,0])
+		loss_val = loss_val + cycle_loss * 0.1
 
 		test_loss += loss_val.item()
 		count += 1
@@ -94,7 +98,13 @@ def train_one_epoch(device, model, train_loader, optimizer):
 		igt = igt.to(device)
 
 		output = model(template, source)
-		loss_val = ChamferDistanceLoss()(template, output['transformed_source'])
+		identity = torch.eye(3).cuda().unsqueeze(0).repeat(template.shape[0], 1, 1)
+		loss_val = torch.nn.functional.mse_loss(torch.matmul(output['est_R'].transpose(2, 1), R_ab), identity) \
+			   + torch.nn.functional.mse_loss(output['est_t'], translation_ab[:,:,0])
+
+		cycle_loss = torch.nn.functional.mse_loss(torch.matmul(output['est_R_'].transpose(2, 1), R_ba), identity) \
+			   + torch.nn.functional.mse_loss(output['est_t_'], translation_ba[:,:,0])
+		loss_val = loss_val + cycle_loss * 0.1
 		# print(loss_val.item())
 
 		# forward + backward + optimize
@@ -147,7 +157,7 @@ def train(args, model, train_loader, test_loader, boardio, textio, checkpoint):
 
 def options():
 	parser = argparse.ArgumentParser(description='Point Cloud Registration')
-	parser.add_argument('--exp_name', type=str, default='exp_ipcrnet', metavar='N',
+	parser.add_argument('--exp_name', type=str, default='exp_dcp', metavar='N',
 						help='Name of the experiment')
 	parser.add_argument('--dataset_path', type=str, default='ModelNet40',
 						metavar='PATH', help='path to the input dataset') # like '/path/to/ModelNet40'
@@ -171,7 +181,7 @@ def options():
 	parser.add_argument('--seed', type=int, default=1234)
 	parser.add_argument('-j', '--workers', default=4, type=int,
 						metavar='N', help='number of data loading workers (default: 4)')
-	parser.add_argument('-b', '--batch_size', default=20, type=int,
+	parser.add_argument('-b', '--batch_size', default=32, type=int,
 						metavar='N', help='mini-batch size (default: 32)')
 	parser.add_argument('--epochs', default=200, type=int,
 						metavar='N', help='number of total epochs to run')
@@ -214,8 +224,8 @@ def main():
 	args.device = torch.device(args.device)
 
 	# Create PointNet Model.
-	ptnet = PointNet(emb_dims=args.emb_dims)
-	model = iPCRNet(feature_model=ptnet)
+	dgcnn = DGCNN(emb_dims=args.emb_dims)
+	model = DCP(feature_model=dgcnn, cycle=True)
 	model = model.to(args.device)
 
 	checkpoint = None

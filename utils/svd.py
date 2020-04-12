@@ -3,11 +3,12 @@ import torch.nn as nn
 import math
 
 class SVDHead(nn.Module):
-    def __init__(self, emb_dims):
+    def __init__(self, emb_dims, input_shape="bnc"):
         super(SVDHead, self).__init__()
         self.emb_dims = emb_dims
         self.reflect = nn.Parameter(torch.eye(3), requires_grad=False)
         self.reflect[2, 2] = -1
+        self.input_shape = input_shape
 
     def forward(self, *input):
         src_embedding = input[0]
@@ -15,6 +16,9 @@ class SVDHead(nn.Module):
         src = input[2]
         tgt = input[3]
         batch_size = src.size(0)
+        if self.input_shape == "bnc":
+            src = src.permute(0, 2, 1)
+            tgt = tgt.permute(0, 2, 1)
 
         d_k = src_embedding.size(1)
         scores = torch.matmul(src_embedding.transpose(2, 1).contiguous(), tgt_embedding) / math.sqrt(d_k)
