@@ -17,8 +17,7 @@ if BASE_DIR[-8:] == 'examples':
 	sys.path.append(os.path.join(BASE_DIR, os.pardir))
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
 	
-from learning3d.models import PointNet
-from learning3d.models import iPCRNet
+from learning3d.models import DGCNN, DCP
 from learning3d.losses import ChamferDistanceLoss
 from learning3d.data_utils import RegistrationData, ModelNet40Data
 
@@ -29,8 +28,7 @@ def _init_(args):
 		os.makedirs('checkpoints/' + args.exp_name)
 	if not os.path.exists('checkpoints/' + args.exp_name + '/' + 'models'):
 		os.makedirs('checkpoints/' + args.exp_name + '/' + 'models')
-	os.system('cp main.py checkpoints' + '/' + args.exp_name + '/' + 'main.py.backup')
-	os.system('cp model.py checkpoints' + '/' + args.exp_name + '/' + 'model.py.backup')
+	os.system('cp train_dcp.py checkpoints' + '/' + args.exp_name + '/' + 'train.py.backup')
 
 
 class IOStream:
@@ -45,6 +43,13 @@ class IOStream:
 	def close(self):
 		self.f.close()
 
+def get_transformations(igt):
+	R_ba = igt[:, 0:3, 0:3]								# Ps = R_ba * Pt
+	translation_ba = igt[:, 0:3, 3]						# Ps = Pt + t_ba
+	R_ab = R_ba.permute(0, 2, 1)						# Pt = R_ab * Ps
+	translation_ab = -torch.bmm(R_ab, translation_ba)	# Pt = Ps + t_ab
+	return R_ab, translation_ab, R_ba, translation_ba
+
 def test_one_epoch(device, model, test_loader):
 	model.eval()
 	test_loss = 0.0
@@ -52,6 +57,9 @@ def test_one_epoch(device, model, test_loader):
 	count = 0
 	for i, data in enumerate(tqdm(test_loader)):
 		template, source, igt = data
+		transformations = get_transformations(igt)
+		transformations = [t.to(device) for t in transformations]
+		R_ab, translation_ab, R_ba, translation_ba = transformations
 
 		template = template.to(device)
 		source = source.to(device)
@@ -77,6 +85,9 @@ def train_one_epoch(device, model, train_loader, optimizer):
 	count = 0
 	for i, data in enumerate(tqdm(train_loader)):
 		template, source, igt = data
+		transformations = get_transformations(igt)
+		transformations = [t.to(device) for t in transformations]
+		R_ab, translation_ab, R_ba, translation_ba = transformations
 
 		template = template.to(device)
 		source = source.to(device)
@@ -193,8 +204,8 @@ def main():
 	textio.cprint(str(args))
 
 	
-	trainset = RegistrationData('PCRNet', ModelNet40Data(train=True))
-	testset = RegistrationData('PCRNet', ModelNet40Data(train=False))
+	trainset = RegistrationData('DCP', ModelNet40Data(train=True))
+	testset = RegistrationData('DCP', ModelNet40Data(train=False))
 	train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=args.workers)
 	test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
 

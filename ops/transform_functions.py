@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from . import quaternion  # works with (w, x, y, z) quaternions
+from scipy.spatial.transform import Rotation
 
 
 def quat2mat(quat):
@@ -222,36 +223,37 @@ class DCPTransform:
         self.anglex = np.random.uniform() * self.angle_range
         self.angley = np.random.uniform() * self.angle_range
         self.anglez = np.random.uniform() * self.angle_range
-        self.translation_ab = np.array([np.random.uniform(-self.translation_range, self.translation_range),
+        self.translation = np.array([np.random.uniform(-self.translation_range, self.translation_range),
                                         np.random.uniform(-self.translation_range, self.translation_range),
                                         np.random.uniform(-self.translation_range, self.translation_range)])
-        cosx = np.cos(self.anglex)
-        cosy = np.cos(self.angley)
-        cosz = np.cos(self.anglez)
-        sinx = np.sin(self.anglex)
-        siny = np.sin(self.angley)
-        sinz = np.sin(self.anglez)
-        Rx = np.array([[1, 0, 0],
-                        [0, cosx, -sinx],
-                        [0, sinx, cosx]])
-        Ry = np.array([[cosy, 0, siny],
-                        [0, 1, 0],
-                        [-siny, 0, cosy]])
-        Rz = np.array([[cosz, -sinz, 0],
-                        [sinz, cosz, 0],
-                        [0, 0, 1]])
-        self.R_ab = Rx.dot(Ry).dot(Rz)
-        last_row = np.array([[0., 0., 0., 1.]])
-        self.igt = np.concatenate([self.R_ab, self.translation_ab.reshape(-1,1)], axis=1)
-        self.igt = np.concatenate([self.igt, last_row], axis=0)
+        # cosx = np.cos(self.anglex)
+        # cosy = np.cos(self.angley)
+        # cosz = np.cos(self.anglez)
+        # sinx = np.sin(self.anglex)
+        # siny = np.sin(self.angley)
+        # sinz = np.sin(self.anglez)
+        # Rx = np.array([[1, 0, 0],
+        #                 [0, cosx, -sinx],
+        #                 [0, sinx, cosx]])
+        # Ry = np.array([[cosy, 0, siny],
+        #                 [0, 1, 0],
+        #                 [-siny, 0, cosy]])
+        # Rz = np.array([[cosz, -sinz, 0],
+        #                 [sinz, cosz, 0],
+        #                 [0, 0, 1]])
+        # self.R_ab = Rx.dot(Ry).dot(Rz)
+        # last_row = np.array([[0., 0., 0., 1.]])
+        # self.igt = np.concatenate([self.R_ab, self.translation_ab.reshape(-1,1)], axis=1)
+        # self.igt = np.concatenate([self.igt, last_row], axis=0)
 
     def apply_transformation(self, template):
-        rotation_ab = Rotation.from_euler('zyx', [self.anglez, self.angley, self.anglex])
-        source = rotation_ab.apply(template.T).T + np.expand_dims(self.translation_ab, axis=1)
+        rotation = Rotation.from_euler('zyx', [self.anglez, self.angley, self.anglex])
+        self.igt = rotation.apply(np.eye(3))
+        self.igt = np.concatenate([self.igt, self.translation.reshape(-1,1)], axis=1)
+        self.igt = np.concatenate([self.igt, np.array([[0., 0., 0., 1.]])], axis=0)
+        source = rotation_ab.apply(template.T).T + np.expand_dims(self.translation, axis=1)
         return source
 
     def __call__(self, template):
         self.generate_transform()
         return self.apply_transformation(template)
-
-def transform_dcp():

@@ -155,29 +155,11 @@ class RegistrationData(Dataset):
 	def set_class(self, data_class):
 		self.data_class = data_class
 
-	def pcrnet_data_loader(self, index):
-		template, label = self.data_class[index]
-		source = self.transforms(template, index)
-		igt = self.transforms.igt
-		return template, source, igt
-
-	def pointnetlk_data_loader(self, index):
-		template, label = self.data_class[index]
-		source = self.transforms(template)
-		igt = self.transforms.igt
-		return template, source, igt
-
-	def dcp_data_loader(self, index):
-		template, label = self.data_class[index]
-		source = self.transforms(template)
-		igt = self.transforms.igt
-		return template, source, igt
-
 	def __getitem__(self, index):
-		if self.algorithm == 'PCRNet' or self.algorithm == 'iPCRNet':
-			return self.pcrnet_data_loader(index)
-		elif self.algorithm == 'PointNetLK':
-			return self.pointnetlk_data_loader(index)
+		template, label = self.data_class[index]
+		source = self.transforms(template)
+		igt = self.transforms.igt
+		return template, source, igt
 
 
 class SegmentationData(Dataset):
