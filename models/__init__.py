@@ -10,4 +10,7 @@ from .pcrnet import iPCRNet
 from .pointnetlk import PointNetLK
 from .pcn import PCN
 
-from .flownet3d import FlowNet3D
+try:
+	from .flownet3d import FlowNet3D
+except:
+	print("Error raised in pointnet2 module for FlowNet3D Network!\nEither don't use pointnet2_utils or retry it's setup.")

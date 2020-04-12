@@ -3,7 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from time import time
 import numpy as np
-from .. utils import pointnet2_utils as pointutils
+
+try:
+    from .. utils import pointnet2_utils as pointutils
+except:
+    print("Error in pointnet2_utils! Retry setup for pointnet2_utils.")
 
 def timeit(tag, t):
     print("{}: {}s".format(tag, time() - t))
