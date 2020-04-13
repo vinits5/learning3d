@@ -218,7 +218,7 @@ class PCRNetTransform:
     def __call__(self, template):
         self.igt = self.transformations[self.index]
         gt = self.create_pose_7d(self.igt)
-        source = self.quaternion_rotate(template, gt)# + self.get_translation(gt)
+        source = self.quaternion_rotate(template, gt) + self.get_translation(gt)
         return source
 
 
