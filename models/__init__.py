@@ -6,6 +6,7 @@ from .classifier import Classifier
 from .segmentation import Segmentation
 
 from .dcp import DCP
+from .prnet import PRNet
 from .pcrnet import iPCRNet
 from .pointnetlk import PointNetLK
 from .pcn import PCN
