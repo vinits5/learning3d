@@ -11,6 +11,8 @@ import shlex
 import json
 import glob
 from .. ops import transform_functions, se3
+from sklearn.neighbors import NearestNeighbors
+from scipy.spatial.distance import minkowski
 
 def download_modelnet40():
 	BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -54,6 +56,22 @@ def create_random_transform(dtype, max_rotation_deg, max_translation):
 	vec = np.concatenate([quat, trans], axis=1)
 	vec = torch.tensor(vec, dtype=dtype)
 	return vec
+
+def jitter_pointcloud(pointcloud, sigma=0.04, clip=0.05):
+	# N, C = pointcloud.shape
+	sigma = 0.04*np.random.random_sample()
+	pointcloud += torch.empty(pointcloud.shape).normal_(mean=0, std=sigma).clamp(-clip, clip)
+	return pointcloud
+
+def farthest_subsample_points(pointcloud1, num_subsampled_points=768):
+	pointcloud1 = pointcloud1
+	num_points = pointcloud1.shape[0]
+	nbrs1 = NearestNeighbors(n_neighbors=num_subsampled_points, algorithm='auto',
+							 metric=lambda x, y: minkowski(x, y)).fit(pointcloud1)
+	random_p1 = np.random.random(size=(1, 3)) + np.array([[500, 500, 500]]) * np.random.choice([1, -1, 1, -1])
+	idx1 = nbrs1.kneighbors(random_p1, return_distance=False).reshape((num_subsampled_points,))
+	gt_mask = torch.zeros(num_points).scatter_(0, torch.tensor(idx1), 1)
+	return pointcloud1[idx1, :], gt_mask
 
 
 class UnknownDataTypeError(Exception):
@@ -131,13 +149,16 @@ class ClassificationData(Dataset):
 
 
 class RegistrationData(Dataset):
-	def __init__(self, algorithm, data_class=ModelNet40Data()):
+	def __init__(self, algorithm, data_class=ModelNet40Data(), partial_source=False, partial_template=False, noise=False):
 		super(RegistrationData, self).__init__()
 		available_algorithms = ['PCRNet', 'PointNetLK', 'DCP', 'PRNet', 'iPCRNet']
 		if algorithm in available_algorithms: self.algorithm = algorithm
 		else: raise Exception("Algorithm not available for registration.")
 		
 		self.set_class(data_class)
+		self.partial_template = partial_template
+		self.partial_source = partial_source
+		self.noise = noise
 
 		if self.algorithm == 'PCRNet' or self.algorithm == 'iPCRNet':
 			from .. ops.transform_functions import PCRNetTransform
@@ -145,7 +166,7 @@ class RegistrationData(Dataset):
 		if self.algorithm == 'PointNetLK':
 			from .. ops.transform_functions import PNLKTransform
 			self.transforms = PNLKTransform(0.8, True)
-		if self.algorithm == 'DCP':
+		if self.algorithm == 'DCP' or self.algorithm == 'PRNet':
 			from .. ops.transform_functions import DCPTransform
 			self.transforms = DCPTransform(angle_range=45, translation_range=1)
 
@@ -159,6 +180,14 @@ class RegistrationData(Dataset):
 		template, label = self.data_class[index]
 		self.transforms.index = index				# for fixed transformations in PCRNet.
 		source = self.transforms(template)
+
+		# Check for Partial Data.
+		if self.partial_source: source, self.source_mask = farthest_subsample_points(source)
+		if self.partial_template: template, self.template_mask = farthest_subsample_points(template)
+
+		# Check for Noise in Source Data.
+		if self.noise: source = jitter_pointcloud(source)
+		
 		igt = self.transforms.igt
 		return template, source, igt
 
