@@ -14,6 +14,14 @@ Learning3D is an open-source library that supports the development of deep learn
 | 4 | Registration | PointNetLK, PCRNet, DCP, PRNet |
 | 5 | Flow Estimation | FlowNet3D | 
 
+## Available Pretrained Models
+1. PointNet
+2. PCN
+3. PointNetLK
+4. PCRNet
+5. DCP
+6. PRNet
+7. FlowNet3D
 
 ## Available Datasets
 1. ModelNet40
