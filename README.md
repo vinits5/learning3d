@@ -1,6 +1,6 @@
 # Learning3D: A Modern Library for Deep Learning on 3D Point Clouds Data.
 
-**[Documentation]() | [Quick Start]() | [Python]() | [Demo]()**
+**[Documentation]() | [Quick Start]() | [Python]() | [Demo](https://github.com/vinits5/learning3d/blob/master/examples/test_pointnet.py)**
 
 Learning3D is an open-source library that supports the development of deep learning algorithms that deal with 3D data. The Learning3D exposes a set of state of art deep neural networks in python. A modular code has been provided for further development. We welcome contributions from the open-source community.
 
@@ -38,3 +38,12 @@ Learning3D is an open-source library that supports the development of deep learn
 3. Transforms3d 0.3 or higher
 4. Ninja
 5. H5py
+
+### To run codes from examples:
+1. Copy the file from "examples" folder outside of the directory "learning3d"
+2. Now, run the file. (ex. python test_pointnet.py)\
+
+Your directory should look like this:
+- Your Directory/Location
+	- learning3d
+	- test_pointnet.py
