@@ -1,0 +1,11 @@
+torch
+torchvision
+h5py
+ninja
+open3d
+tensorboardX
+tqdm
+sklearn
+scipy
+numpy
+transforms3d
