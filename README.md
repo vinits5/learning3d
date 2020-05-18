@@ -46,7 +46,7 @@ Learning3D is an open-source library that supports the development of deep learn
 
 ## Documentation
 B: Batch Size, N: No. of points and C: Channels.
-####  Use Point Embedding Networks:
+####  Use of Point Embedding Networks:
 > from learning3d.models import PointNet, DGCNN\
 > pn = PointNet(emb_dims=1024, input_shape='bnc', use_bn=False)\
 > dgcnn = DGCNN(emb_dims=1024, input_shape='bnc')
@@ -54,18 +54,52 @@ B: Batch Size, N: No. of points and C: Channels.
 | Sr. No. | Variable | Data type | Shape | Choices | Use |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | 1. | emb_dims | Integer | Scalar | 1024, 512 | Size of feature vector for the each point|
-| 2. | input_shape | String | Scalar | 'bnc', 'bcn' | Shape of input point cloud|
+| 2. | input_shape | String | - | 'bnc', 'bcn' | Shape of input point cloud|
 | 3. | output | tensor | BxCxN | - | High dimensional embeddings for each point|
 
-#### Use of Classification Network:
-> from learning3d.models import Classifier, PointNet\
-> classifier = Classifier(feature_model=PointNet(), num_classes=40)
+#### Use of Classification / Segmentation Network:
+> from learning3d.models import Classifier, PointNet, Segmentation\
+> classifier = Classifier(feature_model=PointNet(), num_classes=40)\
+> seg = Segmentation(feature_model=PointNet(), num_classes=40)
 
 | Sr. No. | Variable | Data type | Shape | Choices | Use |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| 1. | feature_model | Object | - | PointNet, DGCNN | Network to encode point clouds in higher dimensional embeddings |
+| 1. | feature_model | Object | - | PointNet / DGCNN | Point cloud embedding network |
 | 2. | num_classes | Integer | Scalar | 10, 40 | Number of object categories to be classified |
-| 3. | output | tennsor | B x 40 | - | Probabilities of each category |
+| 3. | output | tensor | Classification: Bx40, Segmentation: BxNx40 | 10, 40 | Probabilities of each category or each point |
+
+#### Use of Registration Networks:
+> from learning3d.models import PointNet, PointNetLK, DCP, iPCRNet, PRNet\
+> pnlk = PointNetLK(feature_model=PointNet(), delta=1e-02, xtol=1e-07, p0_zero_mean=True, p1_zero_mean=True, pooling='max')\
+> dcp = DCP(feature_model=PointNet(), pointer_='transformer', head='svd')\
+> pcrnet = iPCRNet(feature_moodel=PointNet(), pooling='max')
+
+| Sr. No. | Variable | Data type | Choices | Use | Algorithm |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1. | feature_model | Object | PointNet / DGCNN | Point cloud embedding network | PointNetLK | 
+| 2. | delta | Float | Scalar | Parameter to calculate approximate jacobian | PointNetLK |
+| 3. | xtol | Float | Scalar | Check tolerance to stop iterations | PointNetLK |
+| 4. | p0_zero_mean | Boolean | True/False | Subtract mean from template point cloud |  PointNetLK |
+| 5. | p1_zero_mean | Boolean | True/False | Subtract mean from source point cloud | PointNetLK |
+| 6. | pooling | String | 'max' / 'avg' | Type of pooling used to get global feature vectror | PointNetLK |
+| 7. | pointer_ | String | 'transformer' / 'identity' | Choice for Transformer/Attention network | DCP |
+| 8. | head | String | 'svd' / 'mlp' | Choice of module to estimate registration params | DCP |
+
+#### Use of Point Completion Network:
+> from learning3d.models import PCN\
+> pcn = PCN(emb_dims=1024, input_shape='bnc', num_coarse=1024, grid_size=4, detailed_output=True)
+
+| Sr. No. | Variable | Data type | Choices | Use |
+|:---:|:---:|:---:|:---:|:---:|
+| 1. | emb_dims | Integer | 1024, 512 | Size of feature vector for each point | 
+| 2. | input_shape | String | 'bnc' / 'bcn' | Shape of input point cloud |
+| 3. | num_coarse | Integer | 1024 | Shape of output point cloud |
+| 4. | grid_size | Integer | 4, 8, 16 | Size of grid used to produce detailed output | 
+| 5. | detailed_output | Boolean | True / False | Choice for additional module to create detailed output point cloud|
+
+#### Use of Flow Estimation Network:
+> from learning3d.models import FlowNet3D\
+> flownet = FlowNet3D()
 
 ### To run codes from examples:
 1. Copy the file from "examples" folder outside of the directory "learning3d"
