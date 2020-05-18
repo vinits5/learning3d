@@ -8,11 +8,11 @@ Learning3D is an open-source library that supports the development of deep learn
 
 | Sr. No.       | Tasks         | Algorithms  |
 |:-------------:|:----------:|:-----|
-| 1 | Classification | PointNet, DGCNN |
-| 2 | Segmentation | PointNet, DGCNN |
-| 3 | Reconstruction | Point Completion Network (PCN) |
-| 4 | Registration | PointNetLK, PCRNet, DCP, PRNet |
-| 5 | Flow Estimation | FlowNet3D | 
+| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
+| 2 | [Segmentation](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
+| 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
+| 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet |
+| 5 | [Flow Estimation](https://github.com/vinits5/learning3d#use-of-flow-estimation-network) | FlowNet3D | 
 
 ## Available Loss Functions
 1. Classification Loss (Cross Entropy)
