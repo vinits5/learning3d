@@ -146,3 +146,14 @@ B: Batch Size, N: No. of points and C: Channels.
 - Your Directory/Location
 	- learning3d
 	- test_pointnet.py
+
+### References:
+1. [PointNet:](https://arxiv.org/abs/1612.00593) Deep Learning on Point Sets for 3D Classification and Segmentation
+2. [Dynamic Graph CNN](https://arxiv.org/abs/1801.07829) for Learning on Point Clouds
+3. [PointNetLK:](https://arxiv.org/abs/1903.05711) Robust & Efficient Point Cloud Registration using PointNet
+4. [PCRNet:](https://arxiv.org/abs/1908.07906) Point Cloud Registration Network using PointNet Encoding
+5. [Deep Closest Point:](https://arxiv.org/abs/1905.03304) Learning Representations for Point Cloud Registration
+6. [PRNet:](https://arxiv.org/abs/1910.12240) Self-Supervised Learning for Partial-to-Partial Registration
+7. [FlowNet3D:](https://arxiv.org/abs/1806.01411) Learning Scene Flow in 3D Point Clouds
+8. [PCN:](https://arxiv.org/pdf/1808.00671.pdf) Point Completion Network
+9. [3D ShapeNets:](https://people.csail.mit.edu/khosla/papers/cvpr2015_wu.pdf) A Deep Representation for Volumetric Shapes
