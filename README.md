@@ -45,21 +45,27 @@ Learning3D is an open-source library that supports the development of deep learn
 4. All pretrained models are provided in learning3d/pretrained folder.
 
 ## Documentation
+B: Batch Size, N: No. of points and C: Channels.
 ####  Use Point Embedding Networks:
 > from learning3d.models import PointNet, DGCNN\
 > pn = PointNet(emb_dims=1024, input_shape='bnc', use_bn=False)\
 > dgcnn = DGCNN(emb_dims=1024, input_shape='bnc')
 
-emb_dims: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Size of feature vector for the each point (Integer)\
-input_shape: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Shape of input point cloud. (String) [b: batch, n: no. of points, c: channels]\
-output: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;High dimensional embeddings for each point. [N x embd_dims]
+| Sr. No. | Variable | Data type | Shape | Choices | Use |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1. | emb_dims | Integer | Scalar | 1024, 512 | Size of feature vector for the each point|
+| 2. | input_shape | String | Scalar | 'bnc', 'bcn' | Shape of input point cloud|
+| 3. | output | tensor | BxCxN | - | High dimensional embeddings for each point|
 
 #### Use of Classification Network:
 > from learning3d.models import Classifier, PointNet\
 > classifier = Classifier(feature_model=PointNet(), num_classes=40)
 
-feature_model: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Network to encode point clouds in higher dimensional embeddings (Object) [PointNet, DGCNN]\
-num_classes: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Number of object categories to be classified. (Integer)
+| Sr. No. | Variable | Data type | Shape | Choices | Use |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1. | feature_model | Object | - | PointNet, DGCNN | Network to encode point clouds in higher dimensional embeddings |
+| 2. | num_classes | Integer | Scalar | 10, 40 | Number of object categories to be classified |
+| 3. | output | tennsor | B x 40 | - | Probabilities of each category |
 
 ### To run codes from examples:
 1. Copy the file from "examples" folder outside of the directory "learning3d"
