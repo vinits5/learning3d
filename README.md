@@ -101,6 +101,40 @@ B: Batch Size, N: No. of points and C: Channels.
 > from learning3d.models import FlowNet3D\
 > flownet = FlowNet3D()
 
+#### Use of Data Loaders:
+> from learning3d.data_utils import ModelNet40Data, ClassificationData, RegistrationData, FlowData\
+> modelnet40 = ModelNet40Data(train=True, num_points=1024, download=True)\
+> classification_data = ClassificationData(data_class=ModelNet40Data())\
+> registration_data = RegistrationData(algorithm='PointNetLK', data_class=ModelNet40Data(), partial_source=False, partial_template=False, noise=False)\
+> flow_data = FlowData()
+
+| Sr. No. | Variable | Data type | Choices | Use |
+|:---:|:---:|:---:|:---:|:---:|
+| 1. | train | Boolean | True / False | Split data as train/test set |
+| 2. | num_points | Integer | 1024 | Number of points in each point cloud |
+| 3. | download | Boolean | True / False | If data not available then download it |
+| 4. | data_class | Object | - | Specify which dataset to use |
+| 5. | algorithm | String | 'PointNetLK', 'PCRNet', 'DCP', 'iPCRNet' | Algorithm used for registration |
+| 6. | partial_source | Boolean | True / False | Create partial source point cloud |
+| 7. | partial_template | Boolean | True / False | Create partial template point cloud |
+| 8. | noise | Boolean | True / False | Add noise in source point cloud |
+
+#### Use of Loss Functions:
+> from learning3d.losses import RMSEFeaturesLoss, FrobeniusNormLoss, ClassificationLoss, EMDLoss, ChamferDistanceLoss\
+> rmse = RMSEFeaturesLoss()\
+> fn_loss = FrobeniusNormLoss()\
+> classification_loss = ClassificationLoss()\
+> emd = EMDLoss()\
+> cd = ChamferDistanceLoss()
+
+| Sr. No. | Loss Type | Use |
+|:---:|:---:|:---:|
+| 1. | RMSEFeaturesLoss | Used to find root mean square value between two global feature vectors of point clouds |
+| 2. | FrobeniusNormLoss | Used to find frobenius norm between two transfromation matrices |
+| 3. | ClassificationLoss | Used to calculate cross-entropy loss | 
+| 4. | EMDLoss | Earth Mover's distance between two given point clouds |
+| 5. | ChamferDistanceLoss | Chamfer's distance between two given point clouds |
+
 ### To run codes from examples:
 1. Copy the file from "examples" folder outside of the directory "learning3d"
 2. Now, run the file. (ex. python test_pointnet.py)
