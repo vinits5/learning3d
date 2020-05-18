@@ -14,6 +14,11 @@ Learning3D is an open-source library that supports the development of deep learn
 | 4 | Registration | PointNetLK, PCRNet, DCP, PRNet |
 | 5 | Flow Estimation | FlowNet3D | 
 
+## Available Loss Functions
+1. Classification Loss (Cross Entropy)
+2. Registration Losses (FrobeniusNormLoss, RMSEFeaturesLoss)
+3. Distance Losses (Chamfer Distance, Earth Mover's Distance)
+
 ## Available Pretrained Models
 1. PointNet
 2. PCN
