@@ -52,14 +52,14 @@ Learning3D is an open-source library that supports the development of deep learn
 
 emb_dims: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Size of feature vector for the each point (Integer)\
 input_shape: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Shape of input point cloud. (String) [b: batch, n: no. of points, c: channels]\
-output: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; High dimensional embeddings for each point. [N x embd_dims]
+output: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;High dimensional embeddings for each point. [N x embd_dims]
 
 #### Use of Classification Network:
 > from learning3d.models import Classifier, PointNet\
 > classifier = Classifier(feature_model=PointNet(), num_classes=40)
 
 feature_model: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Network to encode point clouds in higher dimensional embeddings (Object) [PointNet, DGCNN]\
-num_classes: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; Number of object categories to be classified. (Integer)
+num_classes: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Number of object categories to be classified. (Integer)
 
 ### To run codes from examples:
 1. Copy the file from "examples" folder outside of the directory "learning3d"
