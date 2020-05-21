@@ -145,6 +145,52 @@ class PNLKTransform:
         return self.transform(tensor)
 
 
+class RPMNetTransform:
+    """ rigid motion """
+    def __init__(self, mag=1, mag_randomly=False):
+        self.mag = mag
+        self.randomly = mag_randomly
+
+        self.gt = None
+        self.igt = None
+        self.index = 0
+
+    def generate_transform(self):
+        # return: a twist-vector
+        amp = self.mag
+        if self.randomly:
+            amp = torch.rand(1, 1) * self.mag
+        x = torch.randn(1, 6)
+        x = x / x.norm(p=2, dim=1, keepdim=True) * amp
+
+        return x # [1, 6]
+
+    def apply_transform(self, p0, x):
+        # p0: [N, 3]
+        # x: [1, 6]
+        g = se3.exp(x).to(p0)   # [1, 4, 4]
+        gt = se3.exp(-x).to(p0) # [1, 4, 4]
+
+        p1 = se3.transform(g, p0[:, :3])
+
+        if p0.shape[1] == 6:  # Need to rotate normals also
+            g_n = g.clone()
+            g_n[:, :3, 3] = 0.0
+            n1 = se3.transform(g_n, p0[:, 3:6])
+            p1 = torch.cat([p1, n1], axis=-1)
+
+        self.gt = gt.squeeze(0) #  gt: p1 -> p0
+        self.igt = g.squeeze(0) # igt: p0 -> p1
+        return p1
+
+    def transform(self, tensor):
+        x = self.generate_transform()
+        return self.apply_transform(tensor, x)
+
+    def __call__(self, tensor):
+        return self.transform(tensor)
+
+
 class PCRNetTransform:
     def __init__(self, data_size, angle_range=45, translation_range=1):
         self.angle_range = angle_range

@@ -136,7 +136,7 @@ def train(args, model, train_loader, test_loader, boardio, textio, checkpoint):
 
 def options():
 	parser = argparse.ArgumentParser(description='Point Cloud Registration')
-	parser.add_argument('--exp_name', type=str, default='exp_pnlk_v1', metavar='N',
+	parser.add_argument('--exp_name', type=str, default='exp_pnlk', metavar='N',
 						help='Name of the experiment')
 	parser.add_argument('--dataset_path', type=str, default='ModelNet40',
 						metavar='PATH', help='path to the input dataset') # like '/path/to/ModelNet40'

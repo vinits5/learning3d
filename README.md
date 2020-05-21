@@ -8,10 +8,10 @@ Learning3D is an open-source library that supports the development of deep learn
 
 | Sr. No.       | Tasks         | Algorithms  |
 |:-------------:|:----------:|:-----|
-| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
+| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN, PPFNet |
 | 2 | [Segmentation](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
 | 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
-| 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet |
+| 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net |
 | 5 | [Flow Estimation](https://github.com/vinits5/learning3d#use-of-flow-estimation-network) | FlowNet3D | 
 
 ## Available Pretrained Models
@@ -22,6 +22,7 @@ Learning3D is an open-source library that supports the development of deep learn
 5. DCP
 6. PRNet
 7. FlowNet3D
+8. RPM-Net (clean-trained.pth, noisy-trained.pth, partial-pretrained.pth)
 
 ## Available Datasets
 1. ModelNet40
@@ -52,15 +53,19 @@ Learning3D is an open-source library that supports the development of deep learn
 ## Documentation
 B: Batch Size, N: No. of points and C: Channels.
 ####  Use of Point Embedding Networks:
-> from learning3d.models import PointNet, DGCNN\
+> from learning3d.models import PointNet, DGCNN, PPFNet\
 > pn = PointNet(emb_dims=1024, input_shape='bnc', use_bn=False)\
-> dgcnn = DGCNN(emb_dims=1024, input_shape='bnc')
+> dgcnn = DGCNN(emb_dims=1024, input_shape='bnc')\
+> ppf = PPFNet(features=['ppf', 'dxyz', 'xyz'], emb_dims=96, radius='0.3', num_neighbours=64)
 
 | Sr. No. | Variable | Data type | Shape | Choices | Use |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | 1. | emb_dims | Integer | Scalar | 1024, 512 | Size of feature vector for the each point|
 | 2. | input_shape | String | - | 'bnc', 'bcn' | Shape of input point cloud|
 | 3. | output | tensor | BxCxN | - | High dimensional embeddings for each point|
+| 4. | features | List of Strings | - | ['ppf', 'dxyz', 'xyz'] | Use of various features |
+| 5. | radius | Float | Scalar | 0.3 | Radius of cluster for computing local features |
+| 6. | num_neighbours | Integer | Scalar | 64 | Maximum number of points to consider per cluster |
 
 #### Use of Classification / Segmentation Network:
 > from learning3d.models import Classifier, PointNet, Segmentation\
@@ -74,10 +79,11 @@ B: Batch Size, N: No. of points and C: Channels.
 | 3. | output | tensor | Classification: Bx40, Segmentation: BxNx40 | 10, 40 | Probabilities of each category or each point |
 
 #### Use of Registration Networks:
-> from learning3d.models import PointNet, PointNetLK, DCP, iPCRNet, PRNet\
+> from learning3d.models import PointNet, PointNetLK, DCP, iPCRNet, PRNet, PPFNet, RPMNet\
 > pnlk = PointNetLK(feature_model=PointNet(), delta=1e-02, xtol=1e-07, p0_zero_mean=True, p1_zero_mean=True, pooling='max')\
 > dcp = DCP(feature_model=PointNet(), pointer_='transformer', head='svd')\
-> pcrnet = iPCRNet(feature_moodel=PointNet(), pooling='max')
+> pcrnet = iPCRNet(feature_moodel=PointNet(), pooling='max')\
+> rpmnet = RPMNet(feature_model=PPFNet())
 
 | Sr. No. | Variable | Data type | Choices | Use | Algorithm |
 |:---:|:---:|:---:|:---:|:---:|:---:|
@@ -150,10 +156,12 @@ B: Batch Size, N: No. of points and C: Channels.
 ### References:
 1. [PointNet:](https://arxiv.org/abs/1612.00593) Deep Learning on Point Sets for 3D Classification and Segmentation
 2. [Dynamic Graph CNN](https://arxiv.org/abs/1801.07829) for Learning on Point Clouds
-3. [PointNetLK:](https://arxiv.org/abs/1903.05711) Robust & Efficient Point Cloud Registration using PointNet
-4. [PCRNet:](https://arxiv.org/abs/1908.07906) Point Cloud Registration Network using PointNet Encoding
-5. [Deep Closest Point:](https://arxiv.org/abs/1905.03304) Learning Representations for Point Cloud Registration
-6. [PRNet:](https://arxiv.org/abs/1910.12240) Self-Supervised Learning for Partial-to-Partial Registration
-7. [FlowNet3D:](https://arxiv.org/abs/1806.01411) Learning Scene Flow in 3D Point Clouds
-8. [PCN:](https://arxiv.org/pdf/1808.00671.pdf) Point Completion Network
-9. [3D ShapeNets:](https://people.csail.mit.edu/khosla/papers/cvpr2015_wu.pdf) A Deep Representation for Volumetric Shapes
+3. [PPFNet:](https://arxiv.org/pdf/1802.02669.pdf) Global Context Aware Local Features for Robust 3D Point Matching
+4. [PointNetLK:](https://arxiv.org/abs/1903.05711) Robust & Efficient Point Cloud Registration using PointNet
+5. [PCRNet:](https://arxiv.org/abs/1908.07906) Point Cloud Registration Network using PointNet Encoding
+6. [Deep Closest Point:](https://arxiv.org/abs/1905.03304) Learning Representations for Point Cloud Registration
+7. [PRNet:](https://arxiv.org/abs/1910.12240) Self-Supervised Learning for Partial-to-Partial Registration
+8. [FlowNet3D:](https://arxiv.org/abs/1806.01411) Learning Scene Flow in 3D Point Clouds
+9. [PCN:](https://arxiv.org/pdf/1808.00671.pdf) Point Completion Network
+10. [RPM-Net:](https://arxiv.org/pdf/2003.13479.pdf) Robust Point Matching using Learned Features
+11. [3D ShapeNets:](https://people.csail.mit.edu/khosla/papers/cvpr2015_wu.pdf) A Deep Representation for Volumetric Shapes

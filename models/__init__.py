@@ -1,5 +1,6 @@
 from .pointnet import PointNet
 from .dgcnn import DGCNN
+from .ppfnet import PPFNet
 from .pooling import Pooling
 
 from .classifier import Classifier
@@ -9,6 +10,7 @@ from .dcp import DCP
 from .prnet import PRNet
 from .pcrnet import iPCRNet
 from .pointnetlk import PointNetLK
+from .rpmnet import RPMNet
 from .pcn import PCN
 
 try:

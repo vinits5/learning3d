@@ -26,7 +26,7 @@ def download_modelnet40():
 		os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
 		os.system('rm %s' % (zipfile))
 
-def load_data(train):
+def load_data(train, use_normals):
 	if train: partition = 'train'
 	else: partition = 'test'
 	BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -35,7 +35,8 @@ def load_data(train):
 	all_label = []
 	for h5_name in glob.glob(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048', 'ply_data_%s*.h5' % partition)):
 		f = h5py.File(h5_name)
-		data = f['data'][:].astype('float32')
+		if use_normals: data = np.concatenate([f['data'][:], f['normal'][:]], axis=-1).astype('float32')
+		else: data = f['data'][:].astype('float32')
 		label = f['label'][:].astype('int64')
 		f.close()
 		all_data.append(data)
@@ -67,7 +68,7 @@ def farthest_subsample_points(pointcloud1, num_subsampled_points=768):
 	pointcloud1 = pointcloud1
 	num_points = pointcloud1.shape[0]
 	nbrs1 = NearestNeighbors(n_neighbors=num_subsampled_points, algorithm='auto',
-							 metric=lambda x, y: minkowski(x, y)).fit(pointcloud1)
+							 metric=lambda x, y: minkowski(x, y)).fit(pointcloud1[:, :3])
 	random_p1 = np.random.random(size=(1, 3)) + np.array([[500, 500, 500]]) * np.random.choice([1, -1, 1, -1])
 	idx1 = nbrs1.kneighbors(random_p1, return_distance=False).reshape((num_subsampled_points,))
 	gt_mask = torch.zeros(num_points).scatter_(0, torch.tensor(idx1), 1)
@@ -89,11 +90,12 @@ class ModelNet40Data(Dataset):
 		train=True,
 		num_points=1024,
 		download=True,
-		randomize_data=False
+		randomize_data=False,
+		use_normals=False
 	):
 		super(ModelNet40Data, self).__init__()
 		if download: download_modelnet40()
-		self.data, self.labels = load_data(train)
+		self.data, self.labels = load_data(train, use_normals)
 		if not train: self.shapes = self.read_classes_ModelNet40()
 		self.num_points = num_points
 		self.randomize_data = randomize_data
@@ -102,7 +104,7 @@ class ModelNet40Data(Dataset):
 		if self.randomize_data: current_points = self.randomize(idx)
 		else: current_points = self.data[idx].copy()
 
-		current_points = torch.from_numpy(current_points).float()
+		current_points = torch.from_numpy(current_points[:self.num_points, :]).float()
 		label = torch.from_numpy(self.labels[idx]).type(torch.LongTensor)
 
 		return current_points, label
@@ -151,7 +153,7 @@ class ClassificationData(Dataset):
 class RegistrationData(Dataset):
 	def __init__(self, algorithm, data_class=ModelNet40Data(), partial_source=False, partial_template=False, noise=False):
 		super(RegistrationData, self).__init__()
-		available_algorithms = ['PCRNet', 'PointNetLK', 'DCP', 'PRNet', 'iPCRNet']
+		available_algorithms = ['PCRNet', 'PointNetLK', 'DCP', 'PRNet', 'iPCRNet', 'RPMNet']
 		if algorithm in available_algorithms: self.algorithm = algorithm
 		else: raise Exception("Algorithm not available for registration.")
 		
@@ -166,6 +168,9 @@ class RegistrationData(Dataset):
 		if self.algorithm == 'PointNetLK':
 			from .. ops.transform_functions import PNLKTransform
 			self.transforms = PNLKTransform(0.8, True)
+		if self.algorithm == 'RPMNet':
+			from .. ops.transform_functions import RPMNetTransform
+			self.transforms = RPMNetTransform(0.8, True)
 		if self.algorithm == 'DCP' or self.algorithm == 'PRNet':
 			from .. ops.transform_functions import DCPTransform
 			self.transforms = DCPTransform(angle_range=45, translation_range=1)
