@@ -130,6 +130,21 @@ B: Batch Size, N: No. of points and C: Channels.
 | 7. | partial_template | Boolean | True / False | Create partial template point cloud |
 | 8. | noise | Boolean | True / False | Add noise in source point cloud |
 
+#### Use Your Own Data:
+> from learning3d.data_utils import UserData\
+> dataset = UserData(application, data_dict)
+
+|Sr. No. | Application | Required Key | Respective Value |
+|:---:|:---:|:---:|:---:|
+| 1. | 'classification' | 'pcs' | Point Clouds (BxNx3) |
+|    |                  | 'labels' | Ground Truth Class Labels (BxN) |
+| 2. | 'registration' | 'template' | Template Point Clouds (BxNx3) |
+|    |                | 'source' | Source Point Clouds (BxNx3) |
+|    |                | 'transformation' | Ground Truth Transformation (Bx4x4)|
+| 3. | 'flow_estimation' | 'frame1' | Point Clouds (BxNx3) |
+|    |                   | 'frame2' | Point Clouds (BxNx3) |
+|    |                   | 'flow' | Ground Truth Flow Vector (BxNx3)|
+
 #### Use of Loss Functions:
 > from learning3d.losses import RMSEFeaturesLoss, FrobeniusNormLoss, ClassificationLoss, EMDLoss, ChamferDistanceLoss\
 > rmse = RMSEFeaturesLoss()\
