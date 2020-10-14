@@ -137,13 +137,13 @@ class PointNetLK(nn.Module):
 		except RuntimeError as err:
 			# singular...?
 			self.last_err = err
-			g = torch.eye(4).to(p0).view(1, 4, 4).expand(p0.size(0), 4, 4).contiguous()
+			g = torch.eye(4).to(source).view(1, 4, 4).expand(source.size(0), 4, 4).contiguous()
 			#print(err)
 			# Perhaps we can use MP-inverse, but,...
 			# probably, self.dt is way too small...
 			source_features = self.pooling(self.feature_model(source)) # [B, N, 3] -> [B, K]
 			r = source_features - template_features
-			self.feature_model.train(training)
+			self.feature_model.train(self.feature_model.training)
 			return {}
 
 	def handle_batchNorm(self, template, source):
