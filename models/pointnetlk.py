@@ -58,6 +58,15 @@ class PointNetLK(nn.Module):
 
 		self.last_err = None
 		pinv = self.compute_inverse_jacobian(J, template_features, source)
+		if pinv == {}:
+			result = {'est_R': est_T[:,0:3,0:3],
+					  'est_t': est_T[:,0:3,3],
+					  'est_T': est_T,
+					  'r': None,
+					  'transformed_source': self.transform(est_T.unsqueeze(1), source),
+					  'itr': 1,
+					  'est_T_series': self.est_T_series}
+			return result
 
 		itr = 0
 		r = None
