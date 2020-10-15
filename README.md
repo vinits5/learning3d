@@ -5,8 +5,8 @@
 Learning3D is an open-source library that supports the development of deep learning algorithms that deal with 3D data. The Learning3D exposes a set of state of art deep neural networks in python. A modular code has been provided for further development. We welcome contributions from the open-source community.
 
 ## Latest News:
-1. \[15 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
-2. \[14 Oct. 2020\]: Now, use your own data to test classification, registration and flow estimation. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
+1. \[16 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
+2. \[14 Oct. 2020\]: Now, use your own data in learning3d. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
 
 ## Available Computer Vision Algorithms in Learning3D
 
@@ -88,7 +88,7 @@ B: Batch Size, N: No. of points and C: Channels.
 > pnlk = PointNetLK(feature_model=PointNet(), delta=1e-02, xtol=1e-07, p0_zero_mean=True, p1_zero_mean=True, pooling='max')\
 > dcp = DCP(feature_model=PointNet(), pointer_='transformer', head='svd')\
 > pcrnet = iPCRNet(feature_moodel=PointNet(), pooling='max')\
-> rpmnet = RPMNet(feature_model=PPFNet())
+> rpmnet = RPMNet(feature_model=PPFNet())\
 > deepgmr = DeepGMR(use_rri=True, feature_model=PointNet(), nearest_neighbors=20)
 
 | Sr. No. | Variable | Data type | Choices | Use | Algorithm |
@@ -102,7 +102,7 @@ B: Batch Size, N: No. of points and C: Channels.
 | 7. | pointer_ | String | 'transformer' / 'identity' | Choice for Transformer/Attention network | DCP |
 | 8. | head | String | 'svd' / 'mlp' | Choice of module to estimate registration params | DCP |
 | 9. | use_rri | Boolean | True/False | Use nearest neighbors to estimate point cloud features. | DeepGMR |
-| 10. | nearest_neighbores | Integer | Give number of nearest neighbors used to estimate features | DeepGMR |
+| 10. | nearest_neighbores | Integer | 20/any integer | Give number of nearest neighbors used to estimate features | DeepGMR |
 
 #### Use of Point Completion Network:
 > from learning3d.models import PCN\
