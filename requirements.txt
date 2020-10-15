@@ -9,3 +9,4 @@ sklearn
 scipy
 numpy
 transforms3d
+pycuda

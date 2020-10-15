@@ -313,3 +313,30 @@ class DCPTransform:
         template = template.numpy()
         self.generate_transform()
         return torch.from_numpy(self.apply_transformation(template)).float()
+
+class DeepGMRTransform:
+    def __init__(self, angle_range=45, translation_range=1):
+        self.angle_range = angle_range*(np.pi/180)
+        self.translation_range = translation_range
+        self.index = 0
+
+    def generate_transform(self):
+        self.anglex = np.random.uniform() * self.angle_range
+        self.angley = np.random.uniform() * self.angle_range
+        self.anglez = np.random.uniform() * self.angle_range
+        self.translation = np.array([np.random.uniform(-self.translation_range, self.translation_range),
+                                        np.random.uniform(-self.translation_range, self.translation_range),
+                                        np.random.uniform(-self.translation_range, self.translation_range)])
+        
+    def apply_transformation(self, template):
+        rotation = Rotation.from_euler('zyx', [self.anglez, self.angley, self.anglex])
+        self.igt = rotation.apply(np.eye(3))
+        self.igt = np.concatenate([self.igt, self.translation.reshape(-1,1)], axis=1)
+        self.igt = torch.from_numpy(np.concatenate([self.igt, np.array([[0., 0., 0., 1.]])], axis=0)).float()
+        source = rotation.apply(template) + np.expand_dims(self.translation, axis=0)
+        return source
+
+    def __call__(self, template):
+        template = template.numpy()
+        self.generate_transform()
+        return torch.from_numpy(self.apply_transformation(template)).float()

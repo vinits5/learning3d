@@ -11,7 +11,7 @@ Learning3D is an open-source library that supports the development of deep learn
 | 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN, PPFNet |
 | 2 | [Segmentation](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
 | 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
-| 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net |
+| 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net, DeepGMR |
 | 5 | [Flow Estimation](https://github.com/vinits5/learning3d#use-of-flow-estimation-network) | FlowNet3D | 
 
 ## Available Pretrained Models
@@ -23,6 +23,7 @@ Learning3D is an open-source library that supports the development of deep learn
 6. PRNet
 7. FlowNet3D
 8. RPM-Net (clean-trained.pth, noisy-trained.pth, partial-pretrained.pth)
+9. DeepGMR
 
 ## Available Datasets
 1. ModelNet40
@@ -84,6 +85,7 @@ B: Batch Size, N: No. of points and C: Channels.
 > dcp = DCP(feature_model=PointNet(), pointer_='transformer', head='svd')\
 > pcrnet = iPCRNet(feature_moodel=PointNet(), pooling='max')\
 > rpmnet = RPMNet(feature_model=PPFNet())
+> deepgmr = DeepGMR(use_rri=True, feature_model=PointNet(), nearest_neighbors=20)
 
 | Sr. No. | Variable | Data type | Choices | Use | Algorithm |
 |:---:|:---:|:---:|:---:|:---:|:---:|
@@ -95,6 +97,8 @@ B: Batch Size, N: No. of points and C: Channels.
 | 6. | pooling | String | 'max' / 'avg' | Type of pooling used to get global feature vectror | PointNetLK |
 | 7. | pointer_ | String | 'transformer' / 'identity' | Choice for Transformer/Attention network | DCP |
 | 8. | head | String | 'svd' / 'mlp' | Choice of module to estimate registration params | DCP |
+| 9. | use_rri | Boolean | True/False | Use nearest neighbors to estimate point cloud features. | DeepGMR |
+| 10. | nearest_neighbores | Integer | Give number of nearest neighbors used to estimate features | DeepGMR |
 
 #### Use of Point Completion Network:
 > from learning3d.models import PCN\
@@ -180,3 +184,4 @@ B: Batch Size, N: No. of points and C: Channels.
 9. [PCN:](https://arxiv.org/pdf/1808.00671.pdf) Point Completion Network
 10. [RPM-Net:](https://arxiv.org/pdf/2003.13479.pdf) Robust Point Matching using Learned Features
 11. [3D ShapeNets:](https://people.csail.mit.edu/khosla/papers/cvpr2015_wu.pdf) A Deep Representation for Volumetric Shapes
+12. [DeepGMR:](https://arxiv.org/abs/2008.09088) Learning Latent Gaussian Mixture Models for Registration

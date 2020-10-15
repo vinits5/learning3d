@@ -12,6 +12,7 @@ from .pcrnet import iPCRNet
 from .pointnetlk import PointNetLK
 from .rpmnet import RPMNet
 from .pcn import PCN
+from .deepgmr import DeepGMR
 
 try:
 	from .flownet3d import FlowNet3D
