@@ -4,6 +4,10 @@
 
 Learning3D is an open-source library that supports the development of deep learning algorithms that deal with 3D data. The Learning3D exposes a set of state of art deep neural networks in python. A modular code has been provided for further development. We welcome contributions from the open-source community.
 
+## Latest News:
+1. \[15 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
+2. \[14 Oct. 2020\]: Now, use your own data to test classification, registration and flow estimation. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
+
 ## Available Computer Vision Algorithms in Learning3D
 
 | Sr. No.       | Tasks         | Algorithms  |
