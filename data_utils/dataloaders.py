@@ -260,7 +260,16 @@ class RegistrationData(Dataset):
 			template, source = torch.tensor(template).float(), torch.tensor(source).float()
 
 		igt = self.transforms.igt
-		return template, source, igt
+		
+		if self.additional_params['use_masknet']:
+			if self.partial_source and self.partial_template:
+				return template, source, igt, self.template_mask, self.source_mask
+			elif self.partial_source:
+				return template, source, igt, self.source_mask
+			elif self.partial_template:
+				return template, source, igt, self.template_mask
+		else:
+			return template, source, igt
 
 
 class SegmentationData(Dataset):

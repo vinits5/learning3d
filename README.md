@@ -18,7 +18,8 @@ Learning3D is an open-source library that supports the development of deep learn
 | 2 | [Segmentation](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
 | 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
 | 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net, DeepGMR |
-| 5 | [Flow Estimation](https://github.com/vinits5/learning3d#use-of-flow-estimation-network) | FlowNet3D | 
+| 5 | [Flow Estimation](https://github.com/vinits5/learning3d#use-of-flow-estimation-network) | FlowNet3D |
+| 6 | [Inlier Estimation]() | MaskNet | 
 
 ## Available Pretrained Models
 1. PointNet
@@ -31,6 +32,7 @@ Learning3D is an open-source library that supports the development of deep learn
 8. RPM-Net (clean-trained.pth, noisy-trained.pth, partial-pretrained.pth)
 9. DeepGMR
 10. PointConv (Download from this [link](https://github.com/DylanWusee/pointconv_pytorch/blob/master/checkpoints/checkpoint.pth))
+11. MaskNet
 
 ## Available Datasets
 1. ModelNet40
@@ -107,6 +109,15 @@ B: Batch Size, N: No. of points and C: Channels.
 | 8. | head | String | 'svd' / 'mlp' | Choice of module to estimate registration params | DCP |
 | 9. | use_rri | Boolean | True/False | Use nearest neighbors to estimate point cloud features. | DeepGMR |
 | 10. | nearest_neighbores | Integer | 20/any integer | Give number of nearest neighbors used to estimate features | DeepGMR |
+
+#### Use of Inlier Estimation Network (MaskNet):
+> from learning3d.models import MaskNet, PointNet\
+> masknet = MaskNet(feature_model=PointNet(), is_training=True)
+
+| Sr. No. | Variable | Data type | Choices | Use |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1. | feature_model | Object | PointNet / DGCNN | Point cloud embedding network |
+| 2. | is_training | Boolean | True / False | Specify if the network will undergo training or testing |
 
 #### Use of Point Completion Network:
 > from learning3d.models import PCN\
