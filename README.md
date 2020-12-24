@@ -23,16 +23,6 @@ Learning3D is an open-source library that supports the development of deep learn
 | 6 | [Inlier Estimation](https://github.com/vinits5/learning3d#use-of-inlier-estimation-network-masknet) | MaskNet | 
 
 ## Available Pretrained Models
-<table border="0">
-	<tr>
-    	<td>Title</td>
-    	<td>Title 2</td>
-	</tr>
-	<tr>
-    	<td>Lorem ipsum</td>
-    	<td>Lorem ipsum</td>
-	</tr>
-</table>
 1. PointNet
 2. PCN
 3. PointNetLK
