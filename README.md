@@ -123,10 +123,13 @@ Use the following to create pretrained model provided by authors.
 > from learning3d.models import create_pointconv
 > PointConv = create_pointconv(classifier=True, pretrained='path of checkpoint')\
 > ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=6, classifier=True)\
+
 **OR**\
-Use the following to create your own PointConv model.\
+Use the following to create your own PointConv model.
+
 > PointConv = create_pointconv(classifier=False, pretrained=None)\
-> ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=3, classifier=True)
+> ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=3, classifier=True)\
+
 PointConv variable is a class. Users can use it to create a sub-class to override *create_classifier* and *create_structure* methods in order to change PointConv's network architecture.
 
 | Sr. No. | Variable | Data type | Choices | Use |
