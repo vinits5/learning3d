@@ -1,6 +1,7 @@
 from .rmse_features import RMSEFeaturesLoss
 from .frobenius_norm import FrobeniusNormLoss
 from .classification import ClassificationLoss
+from .correspondence_loss import CorrespondenceLoss
 try:
 	from .emd import EMDLoss
 except:

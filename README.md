@@ -38,6 +38,7 @@ Learning3D is an open-source library that supports the development of deep learn
 1. Classification Loss (Cross Entropy)
 2. Registration Losses (FrobeniusNormLoss, RMSEFeaturesLoss)
 3. Distance Losses (Chamfer Distance, Earth Mover's Distance)
+4. Correspondence Loss (based on this [paper](https://arxiv.org/pdf/2010.16085.pdf))
 
 ## Technical Details
 ### Supported OS
@@ -178,12 +179,13 @@ PointConv variable is a class. Users can use it to create a sub-class to overrid
 |    |                   | 'flow' | Ground Truth Flow Vector (BxNx3)|
 
 #### Use of Loss Functions:
-> from learning3d.losses import RMSEFeaturesLoss, FrobeniusNormLoss, ClassificationLoss, EMDLoss, ChamferDistanceLoss\
+> from learning3d.losses import RMSEFeaturesLoss, FrobeniusNormLoss, ClassificationLoss, EMDLoss, ChamferDistanceLoss, CorrespondenceLoss\
 > rmse = RMSEFeaturesLoss()\
 > fn_loss = FrobeniusNormLoss()\
 > classification_loss = ClassificationLoss()\
 > emd = EMDLoss()\
-> cd = ChamferDistanceLoss()
+> cd = ChamferDistanceLoss()\
+> corr = CorrespondenceLoss()
 
 | Sr. No. | Loss Type | Use |
 |:---:|:---:|:---:|
@@ -192,6 +194,7 @@ PointConv variable is a class. Users can use it to create a sub-class to overrid
 | 3. | ClassificationLoss | Used to calculate cross-entropy loss | 
 | 4. | EMDLoss | Earth Mover's distance between two given point clouds |
 | 5. | ChamferDistanceLoss | Chamfer's distance between two given point clouds |
+| 6. | CorrespondenceLoss | Computes cross entropy loss using the predicted correspondence and ground truth correspondence for each source point |
 
 ### To run codes from examples:
 1. Copy the file from "examples" folder outside of the directory "learning3d"
@@ -214,3 +217,4 @@ PointConv variable is a class. Users can use it to create a sub-class to overrid
 11. [RPM-Net:](https://arxiv.org/pdf/2003.13479.pdf) Robust Point Matching using Learned Features
 12. [3D ShapeNets:](https://people.csail.mit.edu/khosla/papers/cvpr2015_wu.pdf) A Deep Representation for Volumetric Shapes
 13. [DeepGMR:](https://arxiv.org/abs/2008.09088) Learning Latent Gaussian Mixture Models for Registration
+14. [CMU: ](https://arxiv.org/pdf/2010.16085.pdf) Correspondence Matrices are Underrated
