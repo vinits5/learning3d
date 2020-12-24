@@ -205,12 +205,12 @@ PointConv variable is a class. Users can use it to create a sub-class to overrid
 2. [Dynamic Graph CNN](https://arxiv.org/abs/1801.07829) for Learning on Point Clouds
 3. [PPFNet:](https://arxiv.org/pdf/1802.02669.pdf) Global Context Aware Local Features for Robust 3D Point Matching
 4. [PointConv:](https://arxiv.org/abs/1811.07246) Deep Convolutional Networks on 3D Point Clouds
-4. [PointNetLK:](https://arxiv.org/abs/1903.05711) Robust & Efficient Point Cloud Registration using PointNet
-5. [PCRNet:](https://arxiv.org/abs/1908.07906) Point Cloud Registration Network using PointNet Encoding
-6. [Deep Closest Point:](https://arxiv.org/abs/1905.03304) Learning Representations for Point Cloud Registration
-7. [PRNet:](https://arxiv.org/abs/1910.12240) Self-Supervised Learning for Partial-to-Partial Registration
-8. [FlowNet3D:](https://arxiv.org/abs/1806.01411) Learning Scene Flow in 3D Point Clouds
-9. [PCN:](https://arxiv.org/pdf/1808.00671.pdf) Point Completion Network
-10. [RPM-Net:](https://arxiv.org/pdf/2003.13479.pdf) Robust Point Matching using Learned Features
-11. [3D ShapeNets:](https://people.csail.mit.edu/khosla/papers/cvpr2015_wu.pdf) A Deep Representation for Volumetric Shapes
-12. [DeepGMR:](https://arxiv.org/abs/2008.09088) Learning Latent Gaussian Mixture Models for Registration
+5. [PointNetLK:](https://arxiv.org/abs/1903.05711) Robust & Efficient Point Cloud Registration using PointNet
+6. [PCRNet:](https://arxiv.org/abs/1908.07906) Point Cloud Registration Network using PointNet Encoding
+7. [Deep Closest Point:](https://arxiv.org/abs/1905.03304) Learning Representations for Point Cloud Registration
+8. [PRNet:](https://arxiv.org/abs/1910.12240) Self-Supervised Learning for Partial-to-Partial Registration
+9. [FlowNet3D:](https://arxiv.org/abs/1806.01411) Learning Scene Flow in 3D Point Clouds
+10. [PCN:](https://arxiv.org/pdf/1808.00671.pdf) Point Completion Network
+11. [RPM-Net:](https://arxiv.org/pdf/2003.13479.pdf) Robust Point Matching using Learned Features
+12. [3D ShapeNets:](https://people.csail.mit.edu/khosla/papers/cvpr2015_wu.pdf) A Deep Representation for Volumetric Shapes
+13. [DeepGMR:](https://arxiv.org/abs/2008.09088) Learning Latent Gaussian Mixture Models for Registration
