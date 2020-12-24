@@ -120,15 +120,15 @@ B: Batch Size, N: No. of points and C: Channels.
 
 #### Use of PointConv:
 Use the following to create pretrained model provided by authors.
-> from learning3d.models import create_pointconv
+> from learning3d.models import create_pointconv\
 > PointConv = create_pointconv(classifier=True, pretrained='path of checkpoint')\
-> ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=6, classifier=True)\
+> ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=6, classifier=True)
 
 **OR**\
 Use the following to create your own PointConv model.
 
 > PointConv = create_pointconv(classifier=False, pretrained=None)\
-> ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=3, classifier=True)\
+> ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=3, classifier=True)
 
 PointConv variable is a class. Users can use it to create a sub-class to override *create_classifier* and *create_structure* methods in order to change PointConv's network architecture.
 
@@ -136,6 +136,9 @@ PointConv variable is a class. Users can use it to create a sub-class to overrid
 |:---:|:---:|:---:|:---:|:---:|
 | 1. | emb_dims | Integer | 1024, 512 | Size of feature vector for each point | 
 | 2. | input_shape | String | 'bnc' / 'bcn' | Shape of input point cloud |
+| 3. | input_channel_dim | Integer | 3/6 | Define if point cloud contains only xyz co-ordinates or normals and colors as well |
+| 4. | classifier | Boolean | True / False | Choose if you want to use a classifier with PointConv |
+| 5. | pretrained | Boolean | String | Give path of the pretrained classifier model (only use it for weights given by authors) |
 
 #### Use of Flow Estimation Network:
 > from learning3d.models import FlowNet3D\
@@ -201,6 +204,7 @@ PointConv variable is a class. Users can use it to create a sub-class to overrid
 1. [PointNet:](https://arxiv.org/abs/1612.00593) Deep Learning on Point Sets for 3D Classification and Segmentation
 2. [Dynamic Graph CNN](https://arxiv.org/abs/1801.07829) for Learning on Point Clouds
 3. [PPFNet:](https://arxiv.org/pdf/1802.02669.pdf) Global Context Aware Local Features for Robust 3D Point Matching
+4. [PointConv:](https://arxiv.org/abs/1811.07246) Deep Convolutional Networks on 3D Point Clouds
 4. [PointNetLK:](https://arxiv.org/abs/1903.05711) Robust & Efficient Point Cloud Registration using PointNet
 5. [PCRNet:](https://arxiv.org/abs/1908.07906) Point Cloud Registration Network using PointNet Encoding
 6. [Deep Closest Point:](https://arxiv.org/abs/1905.03304) Learning Representations for Point Cloud Registration
