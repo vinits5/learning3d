@@ -13,7 +13,7 @@ Learning3D is an open-source library that supports the development of deep learn
 
 | Sr. No.       | Tasks         | Algorithms  |
 |:-------------:|:----------:|:-----|
-| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN, PPFNet, [PointConv]() |
+| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN, PPFNet, [PointConv](https://github.com/vinits5/learning3d#use-of-pointconv) |
 | 2 | [Segmentation](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
 | 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
 | 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net, DeepGMR |
