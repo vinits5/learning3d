@@ -5,14 +5,15 @@
 Learning3D is an open-source library that supports the development of deep learning algorithms that deal with 3D data. The Learning3D exposes a set of state of art deep neural networks in python. A modular code has been provided for further development. We welcome contributions from the open-source community.
 
 ## Latest News:
-1. \[16 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
-2. \[14 Oct. 2020\]: Now, use your own data in learning3d. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
+1. \[24 Dec. 2020\]: [PointConv](https://arxiv.org/abs/1811.07246), latent feature estimation using convolutions on point clouds is now available in learning3d.
+2. \[16 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
+3. \[14 Oct. 2020\]: Now, use your own data in learning3d. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
 
 ## Available Computer Vision Algorithms in Learning3D
 
 | Sr. No.       | Tasks         | Algorithms  |
 |:-------------:|:----------:|:-----|
-| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN, PPFNet |
+| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN, PPFNet, [PointConv]() |
 | 2 | [Segmentation](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
 | 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
 | 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net, DeepGMR |
@@ -28,6 +29,7 @@ Learning3D is an open-source library that supports the development of deep learn
 7. FlowNet3D
 8. RPM-Net (clean-trained.pth, noisy-trained.pth, partial-pretrained.pth)
 9. DeepGMR
+10. PointConv (Download from this [link](https://github.com/DylanWusee/pointconv_pytorch/blob/master/checkpoints/checkpoint.pth))
 
 ## Available Datasets
 1. ModelNet40
@@ -115,6 +117,14 @@ B: Batch Size, N: No. of points and C: Channels.
 | 3. | num_coarse | Integer | 1024 | Shape of output point cloud |
 | 4. | grid_size | Integer | 4, 8, 16 | Size of grid used to produce detailed output | 
 | 5. | detailed_output | Boolean | True / False | Choice for additional module to create detailed output point cloud|
+
+#### Use of PointConv:
+> from learning3d.models import create_pointconv
+> PointConv = create_pointconv(classifier=True, pretrained='path of checkpoint')\
+> ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=6, classifier=True)\
+OR
+> PointConv = create_pointconv(classifier=False, pretrained=None)\
+> ptconv = PointConv(emb_dims=1024, input_shape='bnc', input_channel_dim=3, classifier=True)
 
 #### Use of Flow Estimation Network:
 > from learning3d.models import FlowNet3D\

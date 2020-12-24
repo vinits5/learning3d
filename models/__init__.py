@@ -1,4 +1,5 @@
 from .pointnet import PointNet
+from .pointconv import create_pointconv
 from .dgcnn import DGCNN
 from .ppfnet import PPFNet
 from .pooling import Pooling
