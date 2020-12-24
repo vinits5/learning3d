@@ -20,7 +20,7 @@ Learning3D is an open-source library that supports the development of deep learn
 | 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
 | 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net, DeepGMR |
 | 5 | [Flow Estimation](https://github.com/vinits5/learning3d#use-of-flow-estimation-network) | FlowNet3D |
-| 6 | [Inlier Estimation]() | MaskNet | 
+| 6 | [Inlier Estimation](https://github.com/vinits5/learning3d#use-of-inlier-estimation-network-masknet) | MaskNet | 
 
 ## Available Pretrained Models
 1. PointNet
@@ -116,7 +116,7 @@ B: Batch Size, N: No. of points and C: Channels.
 > masknet = MaskNet(feature_model=PointNet(), is_training=True)
 
 | Sr. No. | Variable | Data type | Choices | Use |
-|:---:|:---:|:---:|:---:|:---:|:---:|
+|:---:|:---:|:---:|:---:|:---:|
 | 1. | feature_model | Object | PointNet / DGCNN | Point cloud embedding network |
 | 2. | is_training | Boolean | True / False | Specify if the network will undergo training or testing |
 
