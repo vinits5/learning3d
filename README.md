@@ -1,3 +1,7 @@
+<p align="center">
+	<img src="https://github.com/vinits5/learning3d/blob/main/images/logo.png" height="300">
+</p>
+
 # Learning3D: A Modern Library for Deep Learning on 3D Point Clouds Data.
 
 **[Documentation](https://github.com/vinits5/learning3d#documentation) | [Blog](https://medium.com/@vinitsarode5/learning3d-a-modern-library-for-deep-learning-on-3d-point-clouds-data-48adc1fd3e0?sk=0beb59651e5ce980243bcdfbf0859b7a) | [Demo](https://github.com/vinits5/learning3d/blob/master/examples/test_pointnet.py)**
