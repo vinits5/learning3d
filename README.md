@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="https://github.com/vinits5/learning3d/blob/main/images/logo.png" height="300">
+	<img src="https://github.com/vinits5/learning3d/blob/master/images/logo.png" height="300">
 </p>
 
 # Learning3D: A Modern Library for Deep Learning on 3D Point Clouds Data.
