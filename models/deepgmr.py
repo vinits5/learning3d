@@ -127,7 +127,7 @@ class PointNet(nn.Module):
 class DeepGMR(nn.Module):
 	def __init__(self, use_rri=True, feature_model=None, nearest_neighbors=20):
 		super(DeepGMR, self).__init__()
-		self.backbone = feature_model if is not None else PointNet(use_rri=use_rri, nearest_neighbors=nearest_neighbors)
+		self.backbone = feature_model if not None else PointNet(use_rri=use_rri, nearest_neighbors=nearest_neighbors)
 		self.use_rri = use_rri
 
 	def forward(self, template, source):
