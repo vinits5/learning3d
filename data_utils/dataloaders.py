@@ -256,7 +256,7 @@ class RegistrationData(Dataset):
 		if self.use_rri:
 			template, source = template.numpy(), source.numpy()
 			template = np.concatenate([template, self.get_rri(template - template.mean(axis=0), self.nearest_neighbors)], axis=1)
-            source = np.concatenate([source, self.get_rri(source - source.mean(axis=0), self.nearest_neighbors)], axis=1)
+            		source = np.concatenate([source, self.get_rri(source - source.mean(axis=0), self.nearest_neighbors)], axis=1)
 			template, source = torch.tensor(template).float(), torch.tensor(source).float()
 
 		igt = self.transforms.igt
