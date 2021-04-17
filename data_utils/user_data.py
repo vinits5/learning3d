@@ -14,6 +14,7 @@ class ClassificationData:
 			attribute_data = self.data_dict[attribute]
 		except:
 			print("Given data directory has no key attribute \"{}\"".format(attribute))
+		return attribute_data
 
 	def check_data(self):
 		assert 1 < len(self.pcs.shape) < 4, "Error in dimension of point clouds! Given data dimension: {}".format(self.pcs.shape)
@@ -45,6 +46,7 @@ class RegistrationData:
 			attribute_data = self.data[attribute]
 		except:
 			print("Given data directory has no key attribute \"{}\"".format(attribute))
+		return attribute_data
 
 	def check_data(self):
 		assert 1 < len(self.template.shape) < 4, "Error in dimension of point clouds! Given data dimension: {}".format(self.template.shape)
@@ -78,6 +80,7 @@ class FlowData:
 			attribute_data = self.data[attribute]
 		except:
 			print("Given data directory has no key attribute \"{}\"".format(attribute))
+		return attribute_data
 
 	def check_data(self):
 		assert 1 < len(self.frame1.shape) < 4, "Error in dimension of point clouds! Given data dimension: {}".format(self.frame1.shape)
