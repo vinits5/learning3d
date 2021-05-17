@@ -158,7 +158,7 @@ class DeepGMR(nn.Module):
 				  'est_R_inverse': est_T_inverse[:, :3, :3],
 				  'est_t_inverese': est_T_inverse[:, :3, 3],
 				  'est_T': est_T,
-				  'est_T_inverse': est_T_inverse
+				  'est_T_inverse': est_T_inverse,
 				  'r': template_features - source_features,
 				  'transformed_source': transformed_source}
 
