@@ -212,6 +212,7 @@ class RegistrationData(Dataset):
 		self.partial_source = partial_source
 		self.noise = noise
 		self.additional_params = additional_params
+		self.use_rri = False
 
 		if self.algorithm == 'PCRNet' or self.algorithm == 'iPCRNet':
 			from .. ops.transform_functions import PCRNetTransform
@@ -232,8 +233,6 @@ class RegistrationData(Dataset):
 			if 'nearest_neighbors' in self.additional_params.keys() and self.additional_params['nearest_neighbors'] > 0:
 				self.use_rri = True
 				self.nearest_neighbors = self.additional_params['nearest_neighbors']
-			else:
-				self.use_rri = False
 
 	def __len__(self):
 		return len(self.data_class)
