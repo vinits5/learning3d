@@ -206,7 +206,7 @@ class ClassificationData(Dataset):
 
 
 class RegistrationData(Dataset):
-	def __init__(self, algorithm, data_class=ModelNet40Data(), partial_source=False, partial_template=False, noise=False, additional_params={}):
+	def __init__(self, algorithm, data_class=ModelNet40Data(), partial_source=False, partial_template=False, noise=False, additional_params={'use_masknet': False}):
 		super(RegistrationData, self).__init__()
 		available_algorithms = ['PCRNet', 'PointNetLK', 'DCP', 'PRNet', 'iPCRNet', 'RPMNet', 'DeepGMR']
 		if algorithm in available_algorithms: self.algorithm = algorithm
