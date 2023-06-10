@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from time import time
 import numpy as np
-from sklearn.neighbors.kde import KernelDensity
+from sklearn.neighbors._kde import KernelDensity
 
 def timeit(tag, t):
     print("{}: {}s".format(tag, time() - t))
