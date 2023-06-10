@@ -26,8 +26,8 @@ def chamfer(a, b):
     :return: A [m] shaped tensor storing the Chamfer distance between each minibatch entry
     """
     M = pairwise_distances(a, b)
-	dist1 = torch.mean(torch.sqrt(M.min(1)[0]))
-	dist2 = torch.mean(torch.sqrt(M.min(2)[0]))
+    dist1 = torch.mean(torch.sqrt(M.min(1)[0]))
+    dist2 = torch.mean(torch.sqrt(M.min(2)[0]))
     return (dist1 + dist2) / 2.0
 
 
