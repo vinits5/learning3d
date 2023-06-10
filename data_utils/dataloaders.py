@@ -13,8 +13,6 @@ import glob
 from .. ops import transform_functions, se3
 from sklearn.neighbors import NearestNeighbors
 from scipy.spatial.distance import minkowski
-from pycuda import gpuarray
-from pycuda.compiler import SourceModule
 from scipy.spatial import cKDTree
 from torch.utils.data import Dataset
 
@@ -26,7 +24,7 @@ def download_modelnet40():
 	if not os.path.exists(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048')):
 		www = 'https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip'
 		zipfile = os.path.basename(www)
-		os.system('wget %s; unzip %s' % (www, zipfile))
+		os.system('wget --no-check-certificate %s; unzip %s' % (www, zipfile))
 		os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
 		os.system('rm %s' % (zipfile))
 
@@ -79,50 +77,57 @@ def farthest_subsample_points(pointcloud1, num_subsampled_points=768):
 	return pointcloud1[idx1, :], gt_mask
 
 def knn_idx(pts, k):
-    kdt = cKDTree(pts) 
-    _, idx = kdt.query(pts, k=k+1)
-    return idx[:, 1:]
+	kdt = cKDTree(pts) 
+	_, idx = kdt.query(pts, k=k+1)
+	return idx[:, 1:]
 
 def get_rri(pts, k):
-    # pts: N x 3, original points
-    # q: N x K x 3, nearest neighbors
-    q = pts[knn_idx(pts, k)]
-    p = np.repeat(pts[:, None], k, axis=1)
-    # rp, rq: N x K x 1, norms
-    rp = np.linalg.norm(p, axis=-1, keepdims=True)
-    rq = np.linalg.norm(q, axis=-1, keepdims=True)
-    pn = p / rp
-    qn = q / rq
-    dot = np.sum(pn * qn, -1, keepdims=True)
-    # theta: N x K x 1, angles
-    theta = np.arccos(np.clip(dot, -1, 1))
-    T_q = q - dot * p
-    sin_psi = np.sum(np.cross(T_q[:, None], T_q[:, :, None]) * pn[:, None], -1)
-    cos_psi = np.sum(T_q[:, None] * T_q[:, :, None], -1)
-    psi = np.arctan2(sin_psi, cos_psi) % (2*np.pi)
-    idx = np.argpartition(psi, 1)[:, :, 1:2]
-    # phi: N x K x 1, projection angles
-    phi = np.take_along_axis(psi, idx, axis=-1)
-    feat = np.concatenate([rp, rq, theta, phi], axis=-1)
-    return feat.reshape(-1, k * 4)
+	# pts: N x 3, original points
+	# q: N x K x 3, nearest neighbors
+	q = pts[knn_idx(pts, k)]
+	p = np.repeat(pts[:, None], k, axis=1)
+	# rp, rq: N x K x 1, norms
+	rp = np.linalg.norm(p, axis=-1, keepdims=True)
+	rq = np.linalg.norm(q, axis=-1, keepdims=True)
+	pn = p / rp
+	qn = q / rq
+	dot = np.sum(pn * qn, -1, keepdims=True)
+	# theta: N x K x 1, angles
+	theta = np.arccos(np.clip(dot, -1, 1))
+	T_q = q - dot * p
+	sin_psi = np.sum(np.cross(T_q[:, None], T_q[:, :, None]) * pn[:, None], -1)
+	cos_psi = np.sum(T_q[:, None] * T_q[:, :, None], -1)
+	psi = np.arctan2(sin_psi, cos_psi) % (2*np.pi)
+	idx = np.argpartition(psi, 1)[:, :, 1:2]
+	# phi: N x K x 1, projection angles
+	phi = np.take_along_axis(psi, idx, axis=-1)
+	feat = np.concatenate([rp, rq, theta, phi], axis=-1)
+	return feat.reshape(-1, k * 4)
 
 def get_rri_cuda(pts, k, npts_per_block=1):
-    import pycuda.autoinit
-    mod_rri = SourceModule(open('rri.cu').read() % (k, npts_per_block))
-    rri_cuda = mod_rri.get_function('get_rri_feature')
+	try:
+		import pycuda.autoinit
+		from pycuda import gpuarray
+		from pycuda.compiler import SourceModule
+	except Exception as e:
+		print("Error raised in pycuda modules! pycuda only works with GPU, ", e)
+		raise
 
-    N = len(pts)
-    pts_gpu = gpuarray.to_gpu(pts.astype(np.float32).ravel())
-    k_idx = knn_idx(pts, k)
-    k_idx_gpu = gpuarray.to_gpu(k_idx.astype(np.int32).ravel())
-    feat_gpu = gpuarray.GPUArray((N * k * 4,), np.float32)
+	mod_rri = SourceModule(open('rri.cu').read() % (k, npts_per_block))
+	rri_cuda = mod_rri.get_function('get_rri_feature')
 
-    rri_cuda(pts_gpu, np.int32(N), k_idx_gpu, feat_gpu,
-             grid=(((N-1) // npts_per_block)+1, 1),
-             block=(npts_per_block, k, 1))
-    
-    feat = feat_gpu.get().reshape(N, k * 4).astype(np.float32)
-    return feat
+	N = len(pts)
+	pts_gpu = gpuarray.to_gpu(pts.astype(np.float32).ravel())
+	k_idx = knn_idx(pts, k)
+	k_idx_gpu = gpuarray.to_gpu(k_idx.astype(np.int32).ravel())
+	feat_gpu = gpuarray.GPUArray((N * k * 4,), np.float32)
+
+	rri_cuda(pts_gpu, np.int32(N), k_idx_gpu, feat_gpu,
+				grid=(((N-1) // npts_per_block)+1, 1),
+				block=(npts_per_block, k, 1))
+
+	feat = feat_gpu.get().reshape(N, k * 4).astype(np.float32)
+	return feat
 
 
 class UnknownDataTypeError(Exception):
@@ -255,7 +260,7 @@ class RegistrationData(Dataset):
 		if self.use_rri:
 			template, source = template.numpy(), source.numpy()
 			template = np.concatenate([template, self.get_rri(template - template.mean(axis=0), self.nearest_neighbors)], axis=1)
-            		source = np.concatenate([source, self.get_rri(source - source.mean(axis=0), self.nearest_neighbors)], axis=1)
+			source = np.concatenate([source, self.get_rri(source - source.mean(axis=0), self.nearest_neighbors)], axis=1)
 			template, source = torch.tensor(template).float(), torch.tensor(source).float()
 
 		igt = self.transforms.igt
