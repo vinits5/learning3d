@@ -53,11 +53,13 @@ Learning3D is an open-source library that supports the development of deep learn
 ### Supported OS
 1. Ubuntu 16.04
 2. Ubuntu 18.04
+3. Ubuntu 20.04.6
 3. Linux Mint
 
 ### Requirements
 1. CUDA 10.0 or higher
 2. Pytorch 1.3 or higher
+3. Python 3.8
 
 ## How to use this library?
 **Important Note: Clone this repository in your project. Please don't add your codes in "learning3d" folder.**
