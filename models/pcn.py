@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from .pooling import Pooling
 
 class PCN(torch.nn.Module):
-	def __init__(self, emb_dims=1024, input_shape="bnc", num_coarse=1024, grid_size=4, detailed_output=True):
+	def __init__(self, emb_dims=1024, input_shape="bnc", num_coarse=1024, grid_size=4, detailed_output=False):
 		# emb_dims:			Embedding Dimensions for PCN.
 		# input_shape:		Shape of Input Point Cloud (b: batch, n: no of points, c: channels)
 		super(PCN, self).__init__()
