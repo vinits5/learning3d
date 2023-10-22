@@ -19,8 +19,7 @@ if BASE_DIR[-8:] == 'examples':
 	os.chdir(os.path.join(BASE_DIR, os.pardir))
 	
 from learning3d.models import MaskNet
-from learning3d.data_utils import RegistrationData, ModelNet40Data, UserData, AnyData
-from registration import Registration
+from learning3d.data_utils import RegistrationData, ModelNet40Data
 
 def pc2open3d(data):
 	if torch.is_tensor(data): data = data.detach().cpu().numpy()
@@ -138,8 +137,8 @@ def main():
 	args = options()
 	torch.backends.cudnn.deterministic = True
 
-	testset = RegistrationData(ModelNet40Data(train=False, num_points=args.num_points, unseen=args.unseen),
-									partial_source=args.partial_source, noise=args.noise, outliers=args.outliers,
+	testset = RegistrationData('PointNetLK', ModelNet40Data(train=False, num_points=args.num_points),
+									partial_source=args.partial_source, noise=args.noise,
 									additional_params={'use_masknet': True})
 	test_loader = DataLoader(testset, batch_size=args.test_batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
 
