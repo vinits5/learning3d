@@ -9,12 +9,13 @@
 Learning3D is an open-source library that supports the development of deep learning algorithms that deal with 3D data. The Learning3D exposes a set of state of art deep neural networks in python. A modular code has been provided for further development. We welcome contributions from the open-source community.
 
 ## Latest News:
-1. \[12 May, 2022\]: [ChamferDistance](https://github.com/fwilliams/fml) loss function is incorporated in learning3d. This is a purely pytorch based loss function.
-1. \[24 Dec. 2020\]: [MaskNet](https://arxiv.org/pdf/2010.09185.pdf) is now ready to enhance the performance of registration algorithms in learning3d for occluded point clouds.
-2. \[24 Dec. 2020\]: Loss based on the predicted and ground truth correspondences is added in learning3d after consideration of [Correspondence Matrices are Underrated](https://arxiv.org/pdf/2010.16085.pdf) paper.
-3. \[24 Dec. 2020\]: [PointConv](https://arxiv.org/abs/1811.07246), latent feature estimation using convolutions on point clouds is now available in learning3d.
-4. \[16 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
-5. \[14 Oct. 2020\]: Now, use your own data in learning3d. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
+1. \[24 Oct, 2023\]: [MaskNet++](https://github.com/zhouruqin/MaskNet2) has been incorporated in our learning3d library.
+2. \[12 May, 2022\]: [ChamferDistance](https://github.com/fwilliams/fml) loss function is incorporated in learning3d. This is a purely pytorch based loss function.
+3. \[24 Dec. 2020\]: [MaskNet](https://arxiv.org/pdf/2010.09185.pdf) is now ready to enhance the performance of registration algorithms in learning3d for occluded point clouds.
+4. \[24 Dec. 2020\]: Loss based on the predicted and ground truth correspondences is added in learning3d after consideration of [Correspondence Matrices are Underrated](https://arxiv.org/pdf/2010.16085.pdf) paper.
+5. \[24 Dec. 2020\]: [PointConv](https://arxiv.org/abs/1811.07246), latent feature estimation using convolutions on point clouds is now available in learning3d.
+6. \[16 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
+7. \[14 Oct. 2020\]: Now, use your own data in learning3d. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
 
 ## Available Computer Vision Algorithms in Learning3D
 
@@ -25,7 +26,7 @@ Learning3D is an open-source library that supports the development of deep learn
 | 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
 | 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net, DeepGMR |
 | 5 | [Flow Estimation](https://github.com/vinits5/learning3d#use-of-flow-estimation-network) | FlowNet3D |
-| 6 | [Inlier Estimation](https://github.com/vinits5/learning3d#use-of-inlier-estimation-network-masknet) | MaskNet | 
+| 6 | [Inlier Estimation](https://github.com/vinits5/learning3d#use-of-inlier-estimation-network-masknet) | MaskNet, MaskNet++ | 
 
 ## Available Pretrained Models
 1. PointNet
@@ -39,6 +40,7 @@ Learning3D is an open-source library that supports the development of deep learn
 9. DeepGMR
 10. PointConv (Download from this [link](https://github.com/DylanWusee/pointconv_pytorch/blob/master/checkpoints/checkpoint.pth))
 11. MaskNet
+12. MaskNet++ / MaskNet2
 
 ## Available Datasets
 1. ModelNet40
@@ -119,8 +121,9 @@ B: Batch Size, N: No. of points and C: Channels.
 | 10. | nearest_neighbores | Integer | 20/any integer | Give number of nearest neighbors used to estimate features | DeepGMR |
 
 #### Use of Inlier Estimation Network (MaskNet):
-> from learning3d.models import MaskNet, PointNet\
+> from learning3d.models import MaskNet, PointNet, MaskNet2\
 > masknet = MaskNet(feature_model=PointNet(), is_training=True)
+> masknet2 = MaskNet2(feature_model=PointNet(), is_training=True)
 
 | Sr. No. | Variable | Data type | Choices | Use |
 |:---:|:---:|:---:|:---:|:---:|
@@ -239,3 +242,4 @@ PointConv variable is a class. Users can use it to create a sub-class to overrid
 13. [DeepGMR:](https://arxiv.org/abs/2008.09088) Learning Latent Gaussian Mixture Models for Registration
 14. [CMU:](https://arxiv.org/pdf/2010.16085.pdf) Correspondence Matrices are Underrated
 15. [MaskNet:](https://arxiv.org/pdf/2010.09185.pdf) A Fully-Convolutional Network to Estimate Inlier Points
+16. [MaskNet++:](https://www.sciencedirect.com/science/article/abs/pii/S0097849322000085) Inlier/outlier identification for two point clouds
