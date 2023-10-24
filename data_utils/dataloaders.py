@@ -76,6 +76,48 @@ def farthest_subsample_points(pointcloud1, num_subsampled_points=768):
 	gt_mask = torch.zeros(num_points).scatter_(0, torch.tensor(idx1), 1)
 	return pointcloud1[idx1, :], gt_mask
 
+def uniform_2_sphere(num: int = None):
+	"""Uniform sampling on a 2-sphere
+
+	Source: https://gist.github.com/andrewbolster/10274979
+
+	Args:
+		num: Number of vectors to sample (or None if single)
+
+	Returns:
+		Random Vector (np.ndarray) of size (num, 3) with norm 1.
+		If num is None returned value will have size (3,)
+
+	"""
+	if num is not None:
+		phi = np.random.uniform(0.0, 2 * np.pi, num)
+		cos_theta = np.random.uniform(-1.0, 1.0, num)
+	else:
+		phi = np.random.uniform(0.0, 2 * np.pi)
+		cos_theta = np.random.uniform(-1.0, 1.0)
+
+	theta = np.arccos(cos_theta)
+	x = np.sin(theta) * np.cos(phi)
+	y = np.sin(theta) * np.sin(phi)
+	z = np.cos(theta)
+
+	return np.stack((x, y, z), axis=-1)
+
+def planar_crop(points, p_keep= 0.7):
+	p_keep = np.array(p_keep, dtype=np.float32)
+
+	rand_xyz = uniform_2_sphere()
+	pts = points.numpy()
+	centroid = np.mean(pts[:, :3], axis=0)
+	points_centered = pts[:, :3] - centroid
+
+	dist_from_plane = np.dot(points_centered, rand_xyz)
+
+	mask = dist_from_plane > np.percentile(dist_from_plane, (1.0 - p_keep) * 100)
+	idx_x = torch.Tensor(np.nonzero(mask))
+
+	return torch.Tensor(pts[mask, :3]), idx_x
+
 def knn_idx(pts, k):
 	kdt = cKDTree(pts) 
 	_, idx = kdt.query(pts, k=k+1)
@@ -206,7 +248,7 @@ class ClassificationData(Dataset):
 
 
 class RegistrationData(Dataset):
-	def __init__(self, algorithm, data_class=ModelNet40Data(), partial_source=False, partial_template=False, noise=False, additional_params={'use_masknet': False}):
+	def __init__(self, algorithm, data_class=ModelNet40Data(), partial_source=False, partial_template=False, noise=False, additional_params={}):
 		super(RegistrationData, self).__init__()
 		available_algorithms = ['PCRNet', 'PointNetLK', 'DCP', 'PRNet', 'iPCRNet', 'RPMNet', 'DeepGMR']
 		if algorithm in available_algorithms: self.algorithm = algorithm
@@ -251,8 +293,20 @@ class RegistrationData(Dataset):
 		source = self.transforms(template)
 
 		# Check for Partial Data.
-		if self.partial_source: source, self.source_mask = farthest_subsample_points(source)
-		if self.partial_template: template, self.template_mask = farthest_subsample_points(template)
+		if self.additional_params.get('partial_point_cloud_method', None) == 'planar_crop':
+			source, gt_idx_source = planar_crop(source)
+			template, gt_idx_template = planar_crop(template)
+			intersect_mask, intersect_x, intersect_y  = np.intersect1d(gt_idx_source, gt_idx_template, return_indices=True)
+
+			self.template_mask = torch.zeros(template.shape[0])
+			self.source_mask = torch.zeros(source.shape[0])
+			self.template_mask[intersect_y]  = 1
+			self.source_mask[intersect_x]  = 1
+		else:
+			if self.partial_source: source, self.source_mask = farthest_subsample_points(source)
+			if self.partial_template: template, self.template_mask = farthest_subsample_points(template)
+
+
 
 		# Check for Noise in Source Data.
 		if self.noise: source = jitter_pointcloud(source)
@@ -265,7 +319,7 @@ class RegistrationData(Dataset):
 
 		igt = self.transforms.igt
 		
-		if self.additional_params['use_masknet']:
+		if self.additional_params.get('use_masknet', False):
 			if self.partial_source and self.partial_template:
 				return template, source, igt, self.template_mask, self.source_mask
 			elif self.partial_source:

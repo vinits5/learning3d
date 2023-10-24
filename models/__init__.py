@@ -15,6 +15,7 @@ from .rpmnet import RPMNet
 from .pcn import PCN
 from .deepgmr import DeepGMR
 from .masknet import MaskNet
+from .masknet2 import MaskNet2
 
 try:
 	from .flownet3d import FlowNet3D
