@@ -1,0 +1,2 @@
+global-include *.cu *.h *.cpp *.egg-info *.so *.o *.egg *.cuh *.txt
+global-exclude *__pycache__* *.pyc
