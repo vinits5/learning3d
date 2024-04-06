@@ -70,6 +70,8 @@ def options():
 						metavar='DATASET', help='dataset type (default: modelnet)')
 	parser.add_argument('--num_points', default=1024, type=int,
 						metavar='N', help='points in point-cloud (default: 1024)')
+	parser.add_argument('--root_dir', default='./', type=str, 
+					 	help='path of the data where modelnet files are downloaded.')
 
 	# settings for PCN
 	parser.add_argument('--emb_dims', default=1024, type=int,
@@ -95,8 +97,8 @@ def main():
 	args = options()
 	args.dataset_path = os.path.join(os.getcwd(), os.pardir, os.pardir, 'ModelNet40', 'ModelNet40')
 
-	trainset = ClassificationData(ModelNet40Data(train=True))
-	testset = ClassificationData(ModelNet40Data(train=False))
+	trainset = ClassificationData(ModelNet40Data(train=True, root_dir=args.root_dir))
+	testset = ClassificationData(ModelNet40Data(train=False, root_dir=args.root_dir))
 	train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=args.workers)
 	test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
 

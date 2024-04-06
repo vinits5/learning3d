@@ -79,6 +79,8 @@ def options():
 	# settings for input data
 	parser.add_argument('--dataset_type', default='modelnet', choices=['modelnet', 'shapenet2'],
 						metavar='DATASET', help='dataset type (default: modelnet)')
+	parser.add_argument('--root_dir', default='./', type=str, 
+					 	help='path of the data where modelnet files are downloaded.')
 
 	# settings for PointNet
 	parser.add_argument('--emb_dims', default=512, type=int,
@@ -102,8 +104,8 @@ def main():
 	args = options()
 	torch.backends.cudnn.deterministic = True
 	
-	trainset = RegistrationData('PRNet', ModelNet40Data(train=True), partial_source=True, partial_template=True)
-	testset = RegistrationData('PRNet', ModelNet40Data(train=False), partial_source=True, partial_template=True)
+	trainset = RegistrationData('PRNet', ModelNet40Data(train=True, root_dir=args.root_dir), partial_source=True, partial_template=True)
+	testset = RegistrationData('PRNet', ModelNet40Data(train=False, root_dir=args.root_dir), partial_source=True, partial_template=True)
 	train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=args.workers)
 	test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
 

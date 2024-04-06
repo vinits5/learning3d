@@ -74,6 +74,8 @@ def options():
 						metavar='DATASET', help='dataset type (default: modelnet)')
 	parser.add_argument('--num_points', default=1024, type=int,
 						metavar='N', help='points in point-cloud (default: 1024)')
+	parser.add_argument('--root_dir', default='./', type=str, 
+					 	help='path of the data where modelnet files are downloaded.')
 
 	# settings for PointNet
 	parser.add_argument('--emb_dims', default=1024, type=int,
@@ -98,7 +100,7 @@ def options():
 def main():
 	args = options()
 
-	testset = RegistrationData('PointNetLK', ModelNet40Data(train=False))
+	testset = RegistrationData('PointNetLK', ModelNet40Data(train=False, root_dir=args.root_dir))
 	test_loader = DataLoader(testset, batch_size=8, shuffle=False, drop_last=False, num_workers=args.workers)
 
 	if not torch.cuda.is_available():

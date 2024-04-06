@@ -103,6 +103,8 @@ def options():
 						metavar='K', help='No of nearest neighbors to be estimated.')
 	parser.add_argument('--use_rri', default=True, type=bool,
 						help='Find nearest neighbors to estimate features from PointNet.')
+	parser.add_argument('--root_dir', default='./', type=str, 
+					 	help='path of the data where modelnet files are downloaded.')
 
 	# settings for on training
 	parser.add_argument('-j', '--workers', default=4, type=int,
@@ -121,8 +123,8 @@ def main():
 	args = options()
 	torch.backends.cudnn.deterministic = True
 	
-	trainset = RegistrationData('DeepGMR', ModelNet40Data(train=True))
-	testset = RegistrationData('DeepGMR', ModelNet40Data(train=False))
+	trainset = RegistrationData('DeepGMR', ModelNet40Data(train=True, root_dir=args.root_dir))
+	testset = RegistrationData('DeepGMR', ModelNet40Data(train=False, root_dir=args.root_dir))
 	train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=args.workers)
 	test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
 

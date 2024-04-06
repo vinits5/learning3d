@@ -157,6 +157,8 @@ def options():
 						metavar='K', help='dim. of the feature vector (default: 1024)')
 	parser.add_argument('--num_iterations', default=3, type=int,
 						help='Number of Iterations')
+	parser.add_argument('--root_dir', default='./', type=str, 
+					 	help='path of the data where modelnet files are downloaded.')
 
 	# settings for on training
 	parser.add_argument('--seed', type=int, default=1234)
@@ -195,8 +197,8 @@ def main():
 	textio.cprint(str(args))
 
 	
-	trainset = RegistrationData('PRNet', ModelNet40Data(train=True), partial_source=True, partial_template=True)
-	testset = RegistrationData('PRNet', ModelNet40Data(train=False), partial_source=True, partial_template=True)
+	trainset = RegistrationData('PRNet', ModelNet40Data(train=True, root_dir=args.root_dir), partial_source=True, partial_template=True)
+	testset = RegistrationData('PRNet', ModelNet40Data(train=False, root_dir=args.root_dir), partial_source=True, partial_template=True)
 	train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=args.workers)
 	test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
 

@@ -160,6 +160,8 @@ def options():
 						help='Add noise in source point clouds.')
 	parser.add_argument('--outliers', default=False, type=bool,
 						help='Add outliers to template point cloud.')
+	parser.add_argument('--root_dir', default='./', type=str, 
+					 	help='path of the data where modelnet files are downloaded.')
 
 	# settings for on training
 	parser.add_argument('--seed', type=int, default=1234)
@@ -202,10 +204,10 @@ def main():
 	textio = IOStream('checkpoints/' + args.exp_name + '/run.log')
 	textio.cprint(str(args))
 
-	trainset = RegistrationData(ModelNet40Data(train=True, num_points=args.num_points, unseen=args.unseen),
+	trainset = RegistrationData(ModelNet40Data(train=True, num_points=args.num_points, unseen=args.unseen, root_dir=args.root_dir),
 								partial_source=args.partial_source, noise=args.noise, outliers=args.outliers, 
 								additional_params={'use_masknet': True})
-	testset = RegistrationData(ModelNet40Data(train=False, num_points=args.num_points, unseen=args.unseen),
+	testset = RegistrationData(ModelNet40Data(train=False, num_points=args.num_points, unseen=args.unseen, root_dir=args.root_dir),
 								partial_source=args.partial_source, noise=args.noise, outliers=args.outliers,
 								additional_params={'use_masknet': True})
 	train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=args.workers)

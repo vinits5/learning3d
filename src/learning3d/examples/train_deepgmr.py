@@ -165,6 +165,8 @@ def options():
 						metavar='DATASET', help='dataset type (default: modelnet)')
 	parser.add_argument('--num_points', default=1024, type=int,
 						metavar='N', help='points in point-cloud (default: 1024)')
+	parser.add_argument('--root_dir', default='./', type=str, 
+					 	help='path of the data where modelnet files are downloaded.')
 
 	parser.add_argument('--nearest_neighbors', default=20, type=int,
 						metavar='K', help='No of nearest neighbors to be estimated.')
@@ -211,8 +213,8 @@ def main():
 	textio = IOStream('checkpoints/' + args.exp_name + '/run.log')
 	textio.cprint(str(args))
 	
-	trainset = RegistrationData('DeepGMR', ModelNet40Data(train=True), additional_params={'nearest_neighbors': args.nearest_neighbors})
-	testset = RegistrationData('DeepGMR', ModelNet40Data(train=False), additional_params={'nearest_neighbors': args.nearest_neighbors})
+	trainset = RegistrationData('DeepGMR', ModelNet40Data(train=True, root_dir=args.root_dir), additional_params={'nearest_neighbors': args.nearest_neighbors})
+	testset = RegistrationData('DeepGMR', ModelNet40Data(train=False, root_dir=args.root_dir), additional_params={'nearest_neighbors': args.nearest_neighbors})
 	train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, drop_last=True, num_workers=args.workers)
 	test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
 

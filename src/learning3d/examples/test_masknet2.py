@@ -120,6 +120,8 @@ def options():
 						help='Add noise in source point clouds.')
 	parser.add_argument('--outliers', default=False, type=bool,
 						help='Add outliers to template point cloud.')
+	parser.add_argument('--root_dir', default='./', type=str, 
+					 	help='path of the data where modelnet files are downloaded.')
 
 	# settings for on testing
 	parser.add_argument('-j', '--workers', default=1, type=int,
@@ -140,7 +142,7 @@ def main():
 	args = options()
 	torch.backends.cudnn.deterministic = True
 
-	testset = RegistrationData('PointNetLK', ModelNet40Data(train=False, num_points=args.num_points),
+	testset = RegistrationData('PointNetLK', ModelNet40Data(train=False, num_points=args.num_points, root_dir=args.root_dir),
 									partial_template=args.partial_template, partial_source=args.partial_source, 
 									noise=args.noise, additional_params={'use_masknet': True, 'partial_point_cloud_method': 'planar_crop'})
 	test_loader = DataLoader(testset, batch_size=args.test_batch_size, shuffle=False, drop_last=False, num_workers=args.workers)
