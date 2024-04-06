@@ -8,3 +8,5 @@ losses/cuda/chamfer_distance/__pycache__
 losses/__pycache__
 utils/lib/__pycache__
 pretrained/
+dist/
+*.egg-info

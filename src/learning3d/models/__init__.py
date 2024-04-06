@@ -16,8 +16,3 @@ from .pcn import PCN
 from .deepgmr import DeepGMR
 from .masknet import MaskNet
 from .masknet2 import MaskNet2
-
-try:
-	from .flownet3d import FlowNet3D
-except:
-	print("Error raised in pointnet2 module for FlowNet3D Network!\nEither don't use pointnet2_utils or retry it's setup.")
