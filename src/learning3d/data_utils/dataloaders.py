@@ -16,9 +16,8 @@ from scipy.spatial.distance import minkowski
 from scipy.spatial import cKDTree
 from torch.utils.data import Dataset
 
-def download_modelnet40():
-	BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-	DATA_DIR = os.path.join(BASE_DIR, os.pardir, 'data')
+def download_modelnet40(root_dir):
+	DATA_DIR = os.path.join(root_dir, 'data')
 	if not os.path.exists(DATA_DIR):
 		os.mkdir(DATA_DIR)
 	if not os.path.exists(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048')):
@@ -28,11 +27,10 @@ def download_modelnet40():
 		os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
 		os.system('rm %s' % (zipfile))
 
-def load_data(train, use_normals):
+def load_data(root_dir, train, use_normals):
 	if train: partition = 'train'
 	else: partition = 'test'
-	BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-	DATA_DIR = os.path.join(BASE_DIR, os.pardir, 'data')
+	DATA_DIR = os.path.join(root_dir, 'data')
 	all_data = []
 	all_label = []
 	for h5_name in glob.glob(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048', 'ply_data_%s*.h5' % partition)):
@@ -186,13 +184,15 @@ class ModelNet40Data(Dataset):
 		self,
 		train=True,
 		num_points=1024,
-		download=True,
+		download=False,
+		root_dir='./',
 		randomize_data=False,
 		use_normals=False
 	):
 		super(ModelNet40Data, self).__init__()
-		if download: download_modelnet40()
-		self.data, self.labels = load_data(train, use_normals)
+		self.root_dir = root_dir
+		if download: download_modelnet40(root_dir=root_dir)
+		self.data, self.labels = load_data(root_dir, train, use_normals)
 		if not train: self.shapes = self.read_classes_ModelNet40()
 		self.num_points = num_points
 		self.randomize_data = randomize_data
@@ -218,8 +218,7 @@ class ModelNet40Data(Dataset):
 		return self.shapes[label]
 
 	def read_classes_ModelNet40(self):
-		BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-		DATA_DIR = os.path.join(BASE_DIR, os.pardir, 'data')
+		DATA_DIR = os.path.join(self.root_dir, 'data')
 		file = open(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048', 'shape_names.txt'), 'r')
 		shape_names = file.read()
 		shape_names = np.array(shape_names.split('\n')[:-1])
@@ -227,7 +226,7 @@ class ModelNet40Data(Dataset):
 
 
 class ClassificationData(Dataset):
-	def __init__(self, data_class=ModelNet40Data()):
+	def __init__(self, data_class):
 		super(ClassificationData, self).__init__()
 		self.set_class(data_class)
 
@@ -248,7 +247,7 @@ class ClassificationData(Dataset):
 
 
 class RegistrationData(Dataset):
-	def __init__(self, algorithm, data_class=ModelNet40Data(), partial_source=False, partial_template=False, noise=False, additional_params={}):
+	def __init__(self, algorithm, data_class, partial_source=False, partial_template=False, noise=False, additional_params={}):
 		super(RegistrationData, self).__init__()
 		available_algorithms = ['PCRNet', 'PointNetLK', 'DCP', 'PRNet', 'iPCRNet', 'RPMNet', 'DeepGMR']
 		if algorithm in available_algorithms: self.algorithm = algorithm
@@ -362,10 +361,9 @@ class FlowData(Dataset):
 
 
 class SceneflowDataset(Dataset):
-	def __init__(self, npoints=1024, root='', partition='train'):
+	def __init__(self, root_dir, npoints=1024, root='', partition='train'):
 		if root == '':
-			BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-			DATA_DIR = os.path.join(BASE_DIR, os.pardir, 'data')
+			DATA_DIR = os.path.join(root_dir, 'data')
 			root = os.path.join(DATA_DIR, 'data_processed_maxcut_35_20k_2k_8192')
 			if not os.path.exists(root): 
 				print("To download dataset, click here: https://drive.google.com/file/d/1CMaxdt-Tg1Wct8v8eGNwuT7qRSIyJPY-/view")
