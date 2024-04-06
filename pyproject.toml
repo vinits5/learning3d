@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "learning3d"
-version = "0.0.3"
+version = "0.0.7"
 authors = [
     { name="Vinit Sarode", email="vinitsarode5@gmail.com"},
 ]
