@@ -9,13 +9,28 @@
 Learning3D is an open-source library that supports the development of deep learning algorithms that deal with 3D data. The Learning3D exposes a set of state of art deep neural networks in python. A modular code has been provided for further development. We welcome contributions from the open-source community.
 
 ## Latest News:
-1. \[24 Oct, 2023\]: [MaskNet++](https://github.com/zhouruqin/MaskNet2) is now a part of learning3d library.
+1. \[7 Apr, 2024\]: Now, learning3d is available as pypi package.
+2. \[24 Oct, 2023\]: [MaskNet++](https://github.com/zhouruqin/MaskNet2) is now a part of learning3d library.
 2. \[12 May, 2022\]: [ChamferDistance](https://github.com/fwilliams/fml) loss function is incorporated in learning3d. This is a purely pytorch based loss function.
 3. \[24 Dec. 2020\]: [MaskNet](https://arxiv.org/pdf/2010.09185.pdf) is now ready to enhance the performance of registration algorithms in learning3d for occluded point clouds.
 4. \[24 Dec. 2020\]: Loss based on the predicted and ground truth correspondences is added in learning3d after consideration of [Correspondence Matrices are Underrated](https://arxiv.org/pdf/2010.16085.pdf) paper.
 5. \[24 Dec. 2020\]: [PointConv](https://arxiv.org/abs/1811.07246), latent feature estimation using convolutions on point clouds is now available in learning3d.
 6. \[16 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
 7. \[14 Oct. 2020\]: Now, use your own data in learning3d. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
+
+## PyPI package setup
+### Setup from pypi server
+```
+pip install learning3d
+```
+
+### Setup using code
+```
+git clone https://github.com/vinits5/learning3d.git
+cd learning3d
+git checkout pypi_v0.1.0
+python3 -m pip install .
+```
 
 ## Available Computer Vision Algorithms in Learning3D
 
