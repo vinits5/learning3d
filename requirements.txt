@@ -1,4 +1,4 @@
-torch==2.0.1
+torch==2.2.0
 torchvision==0.15.2
 h5py==3.8.0
 ninja==1.11.1
