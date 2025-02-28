@@ -130,7 +130,7 @@ def main():
 
 	if args.pretrained:
 		assert os.path.isfile(args.pretrained)
-		model.load_state_dict(torch.load(args.pretrained), strict=False)
+		model.load_state_dict(torch.load(args.pretrained, map_location='cpu'), strict=False)
 	model.to(args.device)
 
 	test(args, model, test_loader)
