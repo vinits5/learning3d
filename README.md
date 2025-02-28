@@ -9,14 +9,15 @@
 Learning3D is an open-source library that supports the development of deep learning algorithms that deal with 3D data. The Learning3D exposes a set of state of art deep neural networks in python. A modular code has been provided for further development. We welcome contributions from the open-source community.
 
 ## Latest News:
-1. \[7 Apr, 2024\]: Now, learning3d is available as pypi package.
-2. \[24 Oct, 2023\]: [MaskNet++](https://github.com/zhouruqin/MaskNet2) is now a part of learning3d library.
-2. \[12 May, 2022\]: [ChamferDistance](https://github.com/fwilliams/fml) loss function is incorporated in learning3d. This is a purely pytorch based loss function.
-3. \[24 Dec. 2020\]: [MaskNet](https://arxiv.org/pdf/2010.09185.pdf) is now ready to enhance the performance of registration algorithms in learning3d for occluded point clouds.
-4. \[24 Dec. 2020\]: Loss based on the predicted and ground truth correspondences is added in learning3d after consideration of [Correspondence Matrices are Underrated](https://arxiv.org/pdf/2010.16085.pdf) paper.
-5. \[24 Dec. 2020\]: [PointConv](https://arxiv.org/abs/1811.07246), latent feature estimation using convolutions on point clouds is now available in learning3d.
-6. \[16 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
-7. \[14 Oct. 2020\]: Now, use your own data in learning3d. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
+1. \[28 Feb, 2025\]: [CurveNet](https://github.com/tiangexiang/CurveNet) is now a part of learning3d library.
+2. \[7 Apr, 2024\]: Now, learning3d is available as pypi package.
+3. \[24 Oct, 2023\]: [MaskNet++](https://github.com/zhouruqin/MaskNet2) is now a part of learning3d library.
+4. \[12 May, 2022\]: [ChamferDistance](https://github.com/fwilliams/fml) loss function is incorporated in learning3d. This is a purely pytorch based loss function.
+5. \[24 Dec. 2020\]: [MaskNet](https://arxiv.org/pdf/2010.09185.pdf) is now ready to enhance the performance of registration algorithms in learning3d for occluded point clouds.
+6. \[24 Dec. 2020\]: Loss based on the predicted and ground truth correspondences is added in learning3d after consideration of [Correspondence Matrices are Underrated](https://arxiv.org/pdf/2010.16085.pdf) paper.
+7. \[24 Dec. 2020\]: [PointConv](https://arxiv.org/abs/1811.07246), latent feature estimation using convolutions on point clouds is now available in learning3d.
+8. \[16 Oct. 2020\]: [DeepGMR](https://wentaoyuan.github.io/deepgmr/), registration using gaussian mixture models is now available in learning3d
+9. \[14 Oct. 2020\]: Now, use your own data in learning3d. (Check out [UserData](https://github.com/vinits5/learning3d#use-your-own-data) functionality!)
 
 ## PyPI package setup
 ### Setup from pypi server
@@ -36,12 +37,12 @@ python3 -m pip install .
 
 | Sr. No.       | Tasks         | Algorithms  |
 |:-------------:|:----------:|:-----|
-| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN, PPFNet, [PointConv](https://github.com/vinits5/learning3d#use-of-pointconv) |
+| 1 | [Classification](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN, PPFNet, [PointConv](https://github.com/vinits5/learning3d#use-of-pointconv), [CurveNet](https://github.com/tiangexiang/CurveNet) |
 | 2 | [Segmentation](https://github.com/vinits5/learning3d#use-of-classification--segmentation-network) | PointNet, DGCNN |
 | 3 | [Reconstruction](https://github.com/vinits5/learning3d#use-of-point-completion-network) | Point Completion Network (PCN) |
 | 4 | [Registration](https://github.com/vinits5/learning3d#use-of-registration-networks) | PointNetLK, PCRNet, DCP, PRNet, RPM-Net, DeepGMR |
 | 5 | [Flow Estimation](https://github.com/vinits5/learning3d#use-of-flow-estimation-network) | FlowNet3D |
-| 6 | [Inlier Estimation](https://github.com/vinits5/learning3d#use-of-inlier-estimation-network-masknet) | MaskNet, MaskNet++ | 
+| 6 | [Inlier Estimation](https://github.com/vinits5/learning3d#use-of-inlier-estimation-network-masknet) | MaskNet, [MaskNet++](https://github.com/zhouruqin/MaskNet2) | 
 
 ## Available Pretrained Models
 1. PointNet
@@ -56,6 +57,7 @@ python3 -m pip install .
 10. PointConv (Download from this [link](https://github.com/DylanWusee/pointconv_pytorch/blob/master/checkpoints/checkpoint.pth))
 11. MaskNet
 12. MaskNet++ / MaskNet2
+13. CurveNet
 
 ## Available Datasets
 1. ModelNet40
@@ -71,7 +73,8 @@ python3 -m pip install .
 1. Ubuntu 16.04
 2. Ubuntu 18.04
 3. Ubuntu 20.04.6
-3. Linux Mint
+4. Linux Mint
+5. macOS Sequoia 15.3.1
 
 ### Requirements
 1. CUDA 10.0 or higher
@@ -258,3 +261,4 @@ PointConv variable is a class. Users can use it to create a sub-class to overrid
 14. [CMU:](https://arxiv.org/pdf/2010.16085.pdf) Correspondence Matrices are Underrated
 15. [MaskNet:](https://arxiv.org/pdf/2010.09185.pdf) A Fully-Convolutional Network to Estimate Inlier Points
 16. [MaskNet++:](https://www.sciencedirect.com/science/article/abs/pii/S0097849322000085) Inlier/outlier identification for two point clouds
+17. [CurveNet:](https://github.com/tiangexiang/CurveNet) Walk in the Cloud: Learning Curves for Point Clouds Shape Analysis
