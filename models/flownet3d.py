@@ -3,6 +3,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from time import time
 import numpy as np
+from .. utils import (
+    pc_normalize, 
+    square_distance, 
+    index_points, 
+    farthest_point_sample, 
+    knn_point, 
+    query_ball_point
+)
 
 try:
     from .. utils import pointnet2_utils as pointutils
@@ -12,122 +20,6 @@ except:
 def timeit(tag, t):
     print("{}: {}s".format(tag, time() - t))
     return time()
-
-def pc_normalize(pc):
-    l = pc.shape[0]
-    centroid = np.mean(pc, axis=0)
-    pc = pc - centroid
-    m = np.max(np.sqrt(np.sum(pc**2, axis=1)))
-    pc = pc / m
-    return pc
-
-def square_distance(src, dst):
-    """
-    Calculate Euclid distance between each two points.
-    src^T * dst = xn * xm + yn * ym + zn * zm；
-    sum(src^2, dim=-1) = xn*xn + yn*yn + zn*zn;
-    sum(dst^2, dim=-1) = xm*xm + ym*ym + zm*zm;
-    dist = (xn - xm)^2 + (yn - ym)^2 + (zn - zm)^2
-         = sum(src**2,dim=-1)+sum(dst**2,dim=-1)-2*src^T*dst
-    Input:
-        src: source points, [B, N, C]
-        dst: target points, [B, M, C]
-    Output:
-        dist: per-point square distance, [B, N, M]
-    """
-    B, N, _ = src.shape
-    _, M, _ = dst.shape
-    dist = -2 * torch.matmul(src, dst.permute(0, 2, 1))
-    dist += torch.sum(src ** 2, -1).view(B, N, 1)
-    dist += torch.sum(dst ** 2, -1).view(B, 1, M)
-    return dist
-
-
-def index_points(points, idx):
-    """
-    Input:
-        points: input points data, [B, N, C]
-        idx: sample index data, [B, S]
-    Return:
-        new_points:, indexed points data, [B, S, C]
-    """
-    device = points.device
-    B = points.shape[0]
-    view_shape = list(idx.shape)
-    view_shape[1:] = [1] * (len(view_shape) - 1)
-    repeat_shape = list(idx.shape)
-    repeat_shape[0] = 1
-    batch_indices = torch.arange(B, dtype=torch.long).to(device).view(view_shape).repeat(repeat_shape)
-    new_points = points[batch_indices, idx, :]
-    return new_points
-
-
-def farthest_point_sample(xyz, npoint):
-    """
-    Input:
-        xyz: pointcloud data, [B, N, C]
-        npoint: number of samples
-    Return:
-        centroids: sampled pointcloud index, [B, npoint]
-    """
-    device = xyz.device
-    B, N, C = xyz.shape
-    centroids = torch.zeros(B, npoint, dtype=torch.long).to(device)
-    distance = torch.ones(B, N).to(device) * 1e10
-    farthest = torch.randint(0, N, (B,), dtype=torch.long).to(device)
-    batch_indices = torch.arange(B, dtype=torch.long).to(device)
-    for i in range(npoint):
-        centroids[:, i] = farthest
-        centroid = xyz[batch_indices, farthest, :].view(B, 1, 3)
-        dist = torch.sum((xyz - centroid) ** 2, -1)
-        mask = dist < distance
-        distance[mask] = dist[mask]
-        farthest = torch.max(distance, -1)[1]
-    return centroids
-
-def knn_point(k, pos1, pos2):
-    '''
-    Input:
-        k: int32, number of k in k-nn search
-        pos1: (batch_size, ndataset, c) float32 array, input points
-        pos2: (batch_size, npoint, c) float32 array, query points
-    Output:
-        val: (batch_size, npoint, k) float32 array, L2 distances
-        idx: (batch_size, npoint, k) int32 array, indices to input points
-    '''
-    B, N, C = pos1.shape
-    M = pos2.shape[1]
-    pos1 = pos1.view(B,1,N,-1).repeat(1,M,1,1)
-    pos2 = pos2.view(B,M,1,-1).repeat(1,1,N,1)
-    dist = torch.sum(-(pos1-pos2)**2,-1)
-    val,idx = dist.topk(k=k,dim = -1)
-    return torch.sqrt(-val), idx
-
-
-def query_ball_point(radius, nsample, xyz, new_xyz):
-    """
-    Input:
-        radius: local region radius
-        nsample: max sample number in local region
-        xyz: all points, [B, N, C]
-        new_xyz: query points, [B, S, C]
-    Return:
-        group_idx: grouped points index, [B, S, nsample]
-    """
-    device = xyz.device
-    B, N, C = xyz.shape
-    _, S, _ = new_xyz.shape
-    group_idx = torch.arange(N, dtype=torch.long).to(device).view(1, 1, N).repeat([B, S, 1])
-    sqrdists = square_distance(new_xyz, xyz)
-    group_idx[sqrdists > radius ** 2] = N
-    mask = group_idx != N
-    cnt = mask.sum(dim=-1)
-    group_idx = group_idx.sort(dim=-1)[0][:, :, :nsample]
-    group_first = group_idx[:, :, 0].view(B, S, 1).repeat([1, 1, nsample])
-    mask = group_idx == N
-    group_idx[mask] = group_first[mask]
-    return group_idx, cnt
-
 
 def sample_and_group(npoint, radius, nsample, xyz, points, returnfps=False):
     """
@@ -145,7 +37,7 @@ def sample_and_group(npoint, radius, nsample, xyz, points, returnfps=False):
     S = npoint
     fps_idx = farthest_point_sample(xyz, npoint) # [B, npoint, C]
     new_xyz = index_points(xyz, fps_idx)
-    idx, _ = query_ball_point(radius, nsample, xyz, new_xyz)
+    idx = query_ball_point(radius, nsample, xyz, new_xyz, get_cnt=False)
     grouped_xyz = index_points(xyz, idx) # [B, npoint, nsample, C]
     grouped_xyz_norm = grouped_xyz - new_xyz.view(B, S, 1, C)
     if points is not None:
@@ -157,7 +49,6 @@ def sample_and_group(npoint, radius, nsample, xyz, points, returnfps=False):
         return new_xyz, new_points, grouped_xyz, fps_idx
     else:
         return new_xyz, new_points
-
 
 def sample_and_group_all(xyz, points):
     """
@@ -177,6 +68,7 @@ def sample_and_group_all(xyz, points):
     else:
         new_points = grouped_xyz
     return new_xyz, new_points
+
 
 class PointNetSetAbstraction(nn.Module):
     def __init__(self, npoint, radius, nsample, in_channel, mlp, group_all):
@@ -266,7 +158,7 @@ class FlowEmbedding(nn.Module):
         else:
             # If the ball neighborhood points are less than nsample,
             # than use the knn neighborhood points
-            idx, cnt = query_ball_point(self.radius, self.nsample, pos2_t, pos1_t)
+            idx, cnt = query_ball_point(self.radius, self.nsample, pos2_t, pos1_t, get_cnt=True)
             # 利用knn取最近的那些点
             _, idx_knn = pointutils.knn(self.nsample, pos1_t, pos2_t)
             cnt = cnt.view(B, -1, 1).repeat(1, 1, self.nsample)
@@ -329,7 +221,7 @@ class PointNetSetUpConv(nn.Module):
         if self.knn:
             _, idx = pointutils.knn(self.nsample, pos1_t, pos2_t)
         else:
-            idx, _ = query_ball_point(self.radius, self.nsample, pos2_t, pos1_t)
+            idx = query_ball_point(self.radius, self.nsample, pos2_t, pos1_t, get_cnt=False)
         
         pos2_grouped = pointutils.grouping_operation(pos2, idx)
         pos_diff = pos2_grouped - pos1.view(B, -1, N, 1)    # [B,3,N1,S]
