@@ -1,0 +1,4 @@
+global-exclude *.cu *.h *.cpp *.egg-info *.so *.o *.egg *.cuh *.txt
+global-exclude *__pycache__* *.pyc *pretrained* *lib/* *cuda/chamfer_distance/* 
+global-exclude *cuda/emd_torch/*/*/* *cuda/emd_torch/*/* *cuda/emd_torch/*
+global-exclude *flownet*

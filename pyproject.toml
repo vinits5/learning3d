@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "learning3d"
+version = "0.2.0"
+authors = [
+    { name="Vinit Sarode", email="vinitsarode5@gmail.com"},
+]
+maintainers = [
+  {name = "Vinit Sarode", email = "vinitsarode5@gmail.com"}
+]
+description = "Learning3D: A Modern Library for Deep Learning on 3D Point Clouds Data"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+license = {file = "LICENSE"}
+keywords = ["Point Clouds", "Deep Learning", "3D Vision", "Point Cloud Registration", "Point Cloud Classification", "Point Cloud Segmentation"]
+dynamic = ["dependencies"]
+
+[tool.setuptools.packages.find]
+where = ["learning3d"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.urls]
+Homepage = "https://github.com/vinits5/learning3d"
+Repository = "https://github.com/vinits5/learning3d"
+Issues = "https://github.com/vinits5/learning3d/issues"
+Changelog = "https://github.com/vinits5/learning3d/CHANGELOG.md"
