@@ -9,3 +9,5 @@ losses/__pycache__
 utils/lib/__pycache__
 dist/
 src/
+*__pycache__*
+*.pyc*
