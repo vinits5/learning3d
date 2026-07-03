@@ -10,7 +10,9 @@ from .model_common_utils import (
 	farthest_point_sample,
 	knn_point,
 	query_ball_point,
-	get_graph_feature
+	get_graph_feature,
+	normalize_coordinate,
+	normalize_3d_coordinate
 )
 from .curvenet_util import (
 	LPFA,

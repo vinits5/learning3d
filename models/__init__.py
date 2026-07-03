@@ -17,6 +17,7 @@ from .deepgmr import DeepGMR
 from .masknet import MaskNet
 from .masknet2 import MaskNet2
 from .curvenet import CurveNet
+from .iae import ImplicitAutoEncoder
 
 try:
 	from .flownet3d import FlowNet3D

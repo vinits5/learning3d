@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 def knn(x, k, add_one_to_k=False):
     if add_one_to_k: k = k + 1
@@ -154,3 +155,46 @@ def get_graph_feature(x, k=20, device=None):
     feature = torch.cat((feature, x), dim=3).permute(0, 3, 1, 2)
 
     return feature
+
+def normalize_coordinate(p, padding=0.1, plane='xz'):
+    ''' Normalize coordinate to [0, 1] for unit cube experiments
+
+    Args:
+        p (tensor): point
+        padding (float): conventional padding paramter of ONet for unit cube, so [-0.5, 0.5] -> [-0.55, 0.55]
+        plane (str): plane feature type, ['xz', 'xy', 'yz']
+    '''
+    if plane == 'xz':
+        xy = p[:, :, [0, 2]]
+    elif plane =='xy':
+        xy = p[:, :, [0, 1]]
+    else:
+        xy = p[:, :, [1, 2]]
+
+    xy_new = xy / (1 + padding + 10e-6) # (-0.5, 0.5)
+    xy_new = xy_new + 0.5 # range (0, 1)
+
+    # f there are outliers out of the range
+    if xy_new.max() >= 1:
+        xy_new[xy_new >= 1] = 1 - 10e-6
+    if xy_new.min() < 0:
+        xy_new[xy_new < 0] = 0.0
+    return xy_new
+
+def normalize_3d_coordinate(p, padding=0.1):
+    ''' Normalize coordinate to [0, 1] for unit cube experiments.
+        Corresponds to our 3D model
+
+    Args:
+        p (tensor): point
+        padding (float): conventional padding paramter of ONet for unit cube, so [-0.5, 0.5] -> [-0.55, 0.55]
+    '''
+    
+    p_nor = p / (1 + padding + 10e-4) # (-0.5, 0.5)
+    p_nor = p_nor + 0.5 # range (0, 1)
+    # f there are outliers out of the range
+    if p_nor.max() >= 1:
+        p_nor[p_nor >= 1] = 1 - 10e-4
+    if p_nor.min() < 0:
+        p_nor[p_nor < 0] = 0.0
+    return p_nor
